@@ -1,26 +1,22 @@
 package core
 
-import enumeration.Color.Color
+import core.count.{ScoreData, ScoreFive, ScoreMultiple, ScoreOne}
+import entity.Point
+import enumeration.Color
 
 object Score {
 
-  val directX = Array(0, 1, 1, 1, 0, -1, -1, -1)
-  val directY = Array(1, 1, 0, -1, -1, 1, 0, -1)
-
-  val scoreOne = 1
-  val scoreOneClose = 2
-  val scoreTwo = 10
-  val scoreTwoClose = 5
-  val scoreThree = 100
-  val scoreThreeClose = 50
-  val scoreFour = 10000
-  val scoreForeClose = 100
-
-  def getMapScore(map: Array[Array[Color]]): Int = {
-    var score = 0
-    score += 1
-    score
+  def getMapScore(color: Color.Value): Int = {
+    ScoreData.init(color)
+    var value = 0
+    for (i <- GameMap.map.indices)
+      for (j <- GameMap.map.indices) {
+        val point = new Point(i, j)
+        value += ScoreOne.getScore(point)
+        value += ScoreMultiple.getScore(point)
+        value += ScoreFive.getScore(point)
+      }
+    value
   }
-
 
 }
