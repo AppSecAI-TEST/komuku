@@ -14,6 +14,7 @@ object ScoreMultiple extends ScoreBase {
       return value
     }
     for (i <- 0 until 4) {
+      //scala居然没有的标准的continue和break
       breakable {
         for (k <- 2 to 4) {
           val tail = GameMap.getRelatePoint(point, i, k + 1)
