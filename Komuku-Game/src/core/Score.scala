@@ -1,6 +1,6 @@
 package core
 
-import core.count.{ScoreData, ScoreFive, ScoreMultiple, ScoreOne}
+import core.count._
 import entity.Point
 import enumeration.Color
 
@@ -15,6 +15,7 @@ object Score {
         value += ScoreOne.getScore(point)
         value += ScoreMultiple.getScore(point)
         value += ScoreFive.getScore(point)
+        value += ScoreMultipleClose.getScore(point)
       }
     value
   }

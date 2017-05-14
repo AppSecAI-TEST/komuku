@@ -12,15 +12,17 @@ object ScoreOne extends ScoreBase {
     }
     for (i <- 0 until 8) {
       val fresh = GameMap.getRelatePoint(point, i, 1)
-      if (!GameMap.reachable(fresh))
-        return value
-      if (GameMap.getColor(fresh) != Color.NULL)
-        return value
+      if (GameMap.reachable(fresh)) {
+        if (GameMap.getColor(fresh) == ScoreData.currentColor)
+          value += 2
+        if (GameMap.getColor(fresh) == Color.getOtherColor(ScoreData.currentColor))
+          value += 2
+        if (GameMap.getColor(fresh) == Color.NULL)
+          value += 1
+      }
     }
-    if (GameMap.getColor(point) == ScoreData.currentColor) {
-      value += 1
-    } else {
-      value -= 1
+    if (GameMap.getColor(point) != ScoreData.currentColor) {
+      value = -value
     }
     value
   }
