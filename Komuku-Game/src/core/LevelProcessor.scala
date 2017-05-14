@@ -5,11 +5,15 @@ import enumeration.Color
 
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
-object Rank {
+object LevelProcessor {
 
   val debug = false
 
   val sequenceWeight = Array(0, 1, 5, 10, 100, 1000);
+
+  def win: Boolean = {
+    false
+  }
 
   def getExpandPoints: List[Point] = {
     val result = ArrayBuffer[Point]()

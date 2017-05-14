@@ -36,8 +36,9 @@ object Game {
       count += 1
       return Score.getMapScore(color)
     }
+
     var max = Int.MinValue
-    val points: List[Point] = Rank.getExpandPoints
+    val points: List[Point] = LevelProcessor.getExpandPoints
     points.foreach(point => {
       GameMap.setColor(point, color)
       val value = getMinScore(level - 1, Color.getOtherColor(color), max)
@@ -61,7 +62,7 @@ object Game {
 
   def getMinScore(level: Int, color: Color.Value, parentMin: Int): Int = {
     var min = Int.MaxValue
-    val points: List[Point] = Rank.getExpandPoints
+    val points: List[Point] = LevelProcessor.getExpandPoints
     points.foreach(point => {
       GameMap.setColor(point, color)
       val value = getMaxScore(level - 1, Color.getOtherColor(color), min)
@@ -90,7 +91,7 @@ object Game {
       println(point.x + " " + point.y + ": " + value + " count: " + count)
     } else {
       val index = points.indexOf(point)
-      if(index == 0){
+      if (index == 0) {
         println("开始计算...")
         for (i <- points.indices)
           print("=")
