@@ -9,7 +9,7 @@ import scala.collection.mutable.ArrayBuffer
 
 object Game {
 
-  val debug = true
+  val debug = false
 
   val searchDeep = 4
 

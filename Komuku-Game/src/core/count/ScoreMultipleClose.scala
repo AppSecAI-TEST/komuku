@@ -16,7 +16,7 @@ object ScoreMultipleClose extends ScoreBase {
     for (i <- 0 until 8) {
       //scala居然没有的标准的continue和break
       breakable {
-        for (k <- 1 to 4) {
+        for (k <- 1 to 2) {
           val tail = GameMap.getRelatePoint(point, i, k + 1)
           if (!GameMap.reachable(tail)) {
             break()

@@ -30,6 +30,7 @@ object Main {
       val line = iterator.next()
       for (j <- 0 until boardSize) {
         line.charAt(j) match {
+          case '.' => map(i)(j) = Color.NULL
           case '□' => map(i)(j) = Color.NULL
           case '×' => map(i)(j) = Color.BLACK
           case '●' => map(i)(j) = Color.WHITE
@@ -45,7 +46,7 @@ object Main {
     for (i <- GameMap.map.indices) {
       for (j <- GameMap.map.indices) {
         GameMap.map(i)(j) match {
-          case Color.NULL => content += '□'
+          case Color.NULL => content += '.'
           case Color.BLACK => content += '×'
           case Color.WHITE => content += '●'
         }
