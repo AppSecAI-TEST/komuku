@@ -101,7 +101,6 @@ object Game {
     } else {
       val index = points.indexOf(point)
       if (index == 0) {
-        println("开始计算...")
         for (i <- points.indices)
           print("=")
         println()

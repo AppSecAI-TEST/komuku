@@ -8,8 +8,10 @@ import scala.io.Source
 object Main {
 
   def main(args: Array[String]): Unit = {
+    println("正在初始化数据...")
     val map = readMap()
     Game.init(map)
+    println("开始计算...")
     val point = Game.search(Color.WHITE)
     GameMap.setColor(point, Color.WHITE)
     printMap()
