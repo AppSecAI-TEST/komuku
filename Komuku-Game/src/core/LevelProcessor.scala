@@ -3,7 +3,7 @@ package core
 import entity.Point
 import enumeration.Color
 
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import scala.collection.mutable.ArrayBuffer
 
 object LevelProcessor {
 
@@ -12,6 +12,16 @@ object LevelProcessor {
   val sequenceWeight = Array(0, 1, 5, 10, 100, 1000);
 
   def win: Boolean = {
+    for (i <- GameMap.map.indices)
+      for (j <- GameMap.map.indices)
+        if (GameMap.map(i)(j) != Color.NULL) {
+          val point = new Point(i, j)
+          for (direct <- 0 until 4) {
+            if (GameMap.checkColors(GameMap.getColor(point), point, direct, 0, 4)) {
+              return true
+            }
+          }
+        }
     false
   }
 

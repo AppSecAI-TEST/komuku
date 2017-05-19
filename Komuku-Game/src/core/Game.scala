@@ -36,6 +36,10 @@ object Game {
       count += 1
       return Score.getMapScore(color)
     }
+    if (LevelProcessor.win) {
+      count += 1
+      return Score.getMapScore(color)
+    }
 
     var max = Int.MinValue
     val points: List[Point] = LevelProcessor.getExpandPoints
@@ -61,6 +65,11 @@ object Game {
   }
 
   def getMinScore(level: Int, color: Color.Value, parentMin: Int): Int = {
+    if (LevelProcessor.win) {
+      count += 1
+      return Score.getMapScore(color)
+    }
+
     var min = Int.MaxValue
     val points: List[Point] = LevelProcessor.getExpandPoints
     points.foreach(point => {
