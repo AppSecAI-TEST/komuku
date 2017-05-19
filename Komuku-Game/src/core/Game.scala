@@ -9,7 +9,7 @@ import scala.collection.mutable.ArrayBuffer
 
 object Game {
 
-  val debug = false
+  var debug = false
 
   val searchDeep = 4
 
@@ -67,7 +67,7 @@ object Game {
   def getMinScore(level: Int, color: Color.Value, parentMin: Int): Int = {
     if (LevelProcessor.win) {
       count += 1
-      return Score.getMapScore(color)
+      return Score.getMapScore(Color.getOtherColor(color))
     }
 
     var min = Int.MaxValue
