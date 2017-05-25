@@ -1,5 +1,8 @@
 ## 对战记录
 
+### 5月25日
+- KOMUKU 执黑棋 胜 VS Javascript版五子棋
+
 ### 5月14日 初出茅庐
 - KOMUKU 执白棋 胜 VS 五子棋游戏
 - KOMUKU 执白棋 负 VS 萝莉五子棋
