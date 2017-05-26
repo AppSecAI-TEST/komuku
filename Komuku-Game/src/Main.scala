@@ -1,33 +1,32 @@
 import java.io.{File, PrintWriter}
 
-import core.{Game, GameMap}
+import core.{Config, Game, GameMap}
 import enumeration.Color
 
 import scala.io.Source
 
 object Main {
 
+  val game = new Game
+
+  val map = readMap()
+
   def main(args: Array[String]): Unit = {
     println("正在初始化数据...")
-    val map = readMap()
-    Game.init(map)
+    game.init(map)
     println("开始计算...")
-    val point = Game.search(Color.WHITE)
-    GameMap.setColor(point, Color.WHITE)
+    val point = game.search(Color.WHITE)
+    map(point.getX)(point.getY) = Color.WHITE
     printMap()
 
     println()
-    Game.resultList.foreach(point => {
-      print("(" + point.x + "," + point.y + ") ")
-    })
-    println()
-    println(point.x + " " + point.y)
+    println(point.getX + " " + point.getY)
   }
 
-  def readMap(): Array[Array[Color.Value]] = {
+  def readMap(): Array[Array[Color]] = {
     val iterator = Source.fromFile("Komuku-Game/src/input.txt").getLines()
     val boardSize = iterator.next().toInt
-    val map = Array.ofDim[Color.Value](boardSize, boardSize)
+    val map = Array.ofDim[Color](boardSize, boardSize)
     for (i <- 0 until boardSize) {
       val line = iterator.next()
       for (j <- 0 until boardSize) {
@@ -44,10 +43,10 @@ object Main {
 
   def printMap(): Unit = {
     val writer = new PrintWriter(new File("Komuku-Game/src/input.txt"))
-    var content = GameMap.map.size + "\n"
-    for (i <- GameMap.map.indices) {
-      for (j <- GameMap.map.indices) {
-        GameMap.map(i)(j) match {
+    var content = Config.size + "\n"
+    for (i <- 0 until Config.size) {
+      for (j <- 0 until Config.size) {
+        map(i)(j) match {
           case Color.NULL => content += '.'
           case Color.BLACK => content += '×'
           case Color.WHITE => content += '●'
