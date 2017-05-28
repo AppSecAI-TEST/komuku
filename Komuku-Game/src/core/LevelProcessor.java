@@ -12,19 +12,19 @@ class LevelProcessor {
 
     private static int[] sequenceWeight = {0, 1, 5, 10, 100, 1000};
 
-    static boolean win(GameMap gameMap) {
+    static Color win(GameMap gameMap) {
         for (int i = 0; i < Config.size; i++)
             for (int j = 0; j < Config.size; j++) {
                 Point point = new Point(i, j);
                 if (gameMap.getColor(point) != Color.NULL) {
                     for (int direct = 0; direct < 4; direct++) {
                         if (gameMap.checkColors(gameMap.getColor(point), point, direct, 0, 4)) {
-                            return true;
+                            return gameMap.getColor(point);
                         }
                     }
                 }
             }
-        return false;
+        return null;
     }
 
     static List<Point> getExpandPoints(GameMap gameMap) {
@@ -36,20 +36,20 @@ class LevelProcessor {
 
         for (int i = 0; i < Config.size; i++)
             for (int j = 0; j < Config.size; j++) {
-                Point point = new Point(i, j);
-                if (gameMap.getColor(point) != Color.NULL) {
-                    findRange(gameMap, point, range, signal);
+                if (gameMap.getColor(i, j) != Color.NULL) {
+                    findRange(gameMap, new Point(i, j), range, signal);
                 }
             }
 
         for (int i = 0; i < Config.size; i++)
             for (int j = 0; j < Config.size; j++) {
-                Point point = new Point(i, j);
-                if (gameMap.getColor(point) == Color.NULL && signal[i][j]) {
+                if (gameMap.getColor(i, j) == Color.NULL && signal[i][j]) {
+                    Point point = new Point(i, j);
                     result.add(point);
                     score.add(getScore(gameMap, point));
                 }
             }
+
         sort(0, score.size() - 1, result, score);
 
         if (debug) {
@@ -75,9 +75,7 @@ class LevelProcessor {
         }
     }
 
-    private static int getScore(GameMap gameMap, Point point)
-
-    {
+    private static int getScore(GameMap gameMap, Point point) {
         int value = 0;
         for (int i = 0; i < 8; i++) {
             Point fresh = gameMap.getRelatePoint(point, i, 1);

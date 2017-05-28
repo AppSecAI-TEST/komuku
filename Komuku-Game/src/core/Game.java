@@ -1,7 +1,9 @@
 package core;
 
+import entity.CountData;
 import entity.Point;
 import enumeration.Color;
+import enumeration.Deep;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +13,7 @@ public class Game {
 
     private boolean debug = false;
 
-    private int searchDeep = 4;
+    private Deep searchDeep;
 
     private List<Point> resultList = new ArrayList<>();
 
@@ -21,16 +23,37 @@ public class Game {
 
     private GameMap gameMap;
 
-    public void init(Color[][] map) {
+    private Counter counter = new Counter();
+
+    public void init(Color[][] map, Deep deep) {
         gameMap = new GameMap(map);
+        searchDeep = deep;
+    }
+
+    public void init(Color[][] map) {
+        init(map, Deep.FOUR);
     }
 
     public Point search(Color color) {
         resultPoint = null;
         resultList.clear();
+        counter.clear();
         count = 0;
-        getMaxScore(searchDeep, color, Integer.MAX_VALUE);
+        Deep searchDeep = this.searchDeep;
+        getMaxScore(searchDeep.getValue(), color, Integer.MAX_VALUE);
         return resultPoint;
+    }
+
+    public Color win() {
+        return LevelProcessor.win(gameMap);
+    }
+
+    public CountData getCountData() {
+        CountData data = new CountData();
+        data.setAllStep(counter.allStep);
+        data.setCount(counter.count);
+        data.setFinishStep(counter.finishStep);
+        return data;
     }
 
     private int getMaxScore(int level, Color color, int parentMin) {
@@ -38,13 +61,16 @@ public class Game {
             count++;
             return Score.getMapScore(gameMap, color);
         }
-        if (LevelProcessor.win(gameMap)) {
+        if (LevelProcessor.win(gameMap) != null) {
             count++;
             return Score.getMapScore(gameMap, color);
         }
 
         int max = Integer.MIN_VALUE;
         List<Point> points = LevelProcessor.getExpandPoints(gameMap);
+        if (level == searchDeep.getValue()) {
+            counter.setAllStep(points.size());
+        }
         for (Point point : points) {
             gameMap.setColor(point, color);
             int value = getMinScore(level - 1, color.getOtherColor(), max);
@@ -52,11 +78,12 @@ public class Game {
                 gameMap.setColor(point, Color.NULL);
                 return value;
             }
-            if (level == searchDeep) {
+            if (level == searchDeep.getValue()) {
                 if (value >= max) {
                     recordResult(point, value, max);
                 }
-                printInfo(point, points, value);
+                counter.plus();
+                printInfo(point, value);
             }
             if (value >= max) {
                 max = value;
@@ -67,7 +94,7 @@ public class Game {
     }
 
     private int getMinScore(int level, Color color, int parentMin) {
-        if (LevelProcessor.win(gameMap)) {
+        if (LevelProcessor.win(gameMap) != null) {
             count++;
             return Score.getMapScore(gameMap, color.getOtherColor());
         }
@@ -97,16 +124,9 @@ public class Game {
         resultPoint = resultList.get(new Random().nextInt(resultList.size()));
     }
 
-    private void printInfo(Point point, List<Point> points, int value) {
+    private void printInfo(Point point, int value) {
         if (debug) {
-            System.out.printf(point.getX() + " " + point.getY() + ": " + value + " count: " + count);
-        } else {
-            int index = points.indexOf(point);
-            if (index == 0) {
-                points.forEach(p -> System.out.print("="));
-                System.out.println();
-            }
-            System.out.print(">");
+            System.out.println(point.getX() + " " + point.getY() + ": " + value + " count: " + count);
         }
     }
 }

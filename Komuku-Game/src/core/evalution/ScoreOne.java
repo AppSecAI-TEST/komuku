@@ -1,4 +1,4 @@
-package core.count;
+package core.evalution;
 
 import core.GameMap;
 import entity.Point;

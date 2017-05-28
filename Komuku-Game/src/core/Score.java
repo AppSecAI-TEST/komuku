@@ -1,20 +1,21 @@
 package core;
 
-import core.count.ScoreFive;
-import core.count.ScoreMultiple;
-import core.count.ScoreMultipleClose;
-import core.count.ScoreOne;
+import core.evalution.ScoreFive;
+import core.evalution.ScoreMultiple;
+import core.evalution.ScoreMultipleClose;
+import core.evalution.ScoreOne;
 import entity.Point;
 import enumeration.Color;
 
-public class Score {
+class Score {
 
-    public static int getMapScore(GameMap gameMap, Color color) {
+    private static ScoreOne scoreOne = new ScoreOne();
+    private static ScoreFive scoreFive = new ScoreFive();
+    private static ScoreMultiple scoreMultiple = new ScoreMultiple();
+    private static ScoreMultipleClose scoreMultipleClose = new ScoreMultipleClose();
+
+    static int getMapScore(GameMap gameMap, Color color) {
         int value = 0;
-        ScoreOne scoreOne = new ScoreOne();
-        ScoreFive scoreFive = new ScoreFive();
-        ScoreMultiple scoreMultiple = new ScoreMultiple();
-        ScoreMultipleClose scoreMultipleClose = new ScoreMultipleClose();
 
         for (int i = 0; i < Config.size; i++)
             for (int j = 0; j < Config.size; j++) {

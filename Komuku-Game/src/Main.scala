@@ -1,7 +1,8 @@
 import java.io.{File, PrintWriter}
 
-import core.{Config, Game, GameMap}
-import enumeration.Color
+import core.{Config, Game}
+import entity.Point
+import enumeration.{Color, Deep}
 
 import scala.io.Source
 
@@ -11,16 +12,24 @@ object Main {
 
   val map = readMap()
 
+  var progress: Int = 0
+
+  var currentProgress: Int = 0
+
+  var result: Point = _
+
   def main(args: Array[String]): Unit = {
     println("正在初始化数据...")
-    game.init(map)
+    game.init(map, Deep.SIX)
     println("开始计算...")
-    val point = game.search(Color.WHITE)
-    map(point.getX)(point.getY) = Color.WHITE
+    if (game.win() != null) {
+      println(game.win() + " win")
+      return
+    }
+    listen
+    result = game.search(Color.WHITE)
+    map(result.getX)(result.getY) = Color.WHITE
     printMap()
-
-    println()
-    println(point.getX + " " + point.getY)
   }
 
   def readMap(): Array[Array[Color]] = {
@@ -57,5 +66,34 @@ object Main {
     content += "●×"
     writer.write(content)
     writer.close()
+  }
+
+  def listen: Unit = {
+    val thread = new Thread(new Runnable {
+      override def run(): Unit = {
+        while (true) {
+          val data = game.getCountData
+          if (data.getAllStep > 0 && progress == 0) {
+            progress = data.getAllStep
+            for (i <- 1 to progress) {
+              print("=")
+            }
+            println
+          }
+          if (data.getFinishStep > currentProgress) {
+            for (i <- 1 to data.getFinishStep - currentProgress) {
+              print(">")
+            }
+            currentProgress = data.getFinishStep
+          }
+          Thread.sleep(1000)
+          if (progress == currentProgress && progress > 0) {
+            println();
+            println(result.getX + " " + result.getY)
+            return
+          }
+        }
+      }
+    }).start()
   }
 }

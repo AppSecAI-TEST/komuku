@@ -10,7 +10,7 @@ public class GameMap {
 
     private Color[][] map;
 
-    public GameMap(Color[][] map) {
+    GameMap(Color[][] map) {
         this.map = map;
     }
 
@@ -24,6 +24,10 @@ public class GameMap {
 
     public Color getColor(Point point) {
         return map[point.getX()][point.getY()];
+    }
+
+    Color getColor(int x, int y) {
+        return map[x][y];
     }
 
     void setColor(Point point, Color color) {
