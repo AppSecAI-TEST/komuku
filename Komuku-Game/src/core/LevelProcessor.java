@@ -50,6 +50,10 @@ class LevelProcessor {
                 }
             }
 
+        if (result.isEmpty()) {
+            result.add(new Point(7, 7));
+            return result;
+        }
         sort(0, score.size() - 1, result, score);
 
         if (debug) {
