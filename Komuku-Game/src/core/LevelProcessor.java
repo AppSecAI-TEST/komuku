@@ -10,7 +10,7 @@ class LevelProcessor {
 
     private static boolean debug = false;
 
-    private static int[] sequenceWeight = {0, 1, 5, 10, 100, 1000};
+    private static int[] sequenceWeight = {0, 1, 10, 100, 1000, 10000};
 
     static Color win(GameMap gameMap) {
         for (int i = 0; i < Config.size; i++)
@@ -89,6 +89,25 @@ class LevelProcessor {
                     int length = gameMap.getMaxSequence(color, fresh, i);
                     if (length > 5) {
                         length = 5;
+                    }
+                    int tail = 4 - length;
+                    //尾部需要检查个数以及颜色
+                    if (tail > 0) {
+                        boolean pass = false;
+                        for (int k = 1; k <= tail; k++) {
+                            Point tailPoint = gameMap.getRelatePoint(point, i, -k);
+                            if (!gameMap.reachable(tailPoint)) {
+                                pass = true;
+                                break;
+                            }
+                            if (gameMap.getColor(tailPoint) == color.getOtherColor()) {
+                                pass = true;
+                                break;
+                            }
+                        }
+                        if (pass) {
+                            continue;
+                        }
                     }
                     value += sequenceWeight[length];
                 }

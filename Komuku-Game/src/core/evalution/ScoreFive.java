@@ -10,6 +10,8 @@ public class ScoreFive implements ScoreBase {
     @Override
     public int getScore(GameMap gameMap, Point point, Color color) {
         int value = 0;
+        if (color == Color.NULL)
+            return value;
         int length = 5;
         for (int i = 0; i < 4; i++) {
             if (gameMap.checkColors(color, point, i, 0, length - 1)) {

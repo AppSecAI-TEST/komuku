@@ -56,6 +56,10 @@ public class Game {
         return data;
     }
 
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
     private int getMaxScore(int level, Color color, int parentMin) {
         if (level == 0) {
             count++;
