@@ -40,6 +40,9 @@ public class Game {
         counter.clear();
         count = 0;
         Deep searchDeep = this.searchDeep;
+        if (LevelProcessor.win(gameMap) != null) {
+            return null;
+        }
         getMaxScore(searchDeep.getValue(), color, Integer.MAX_VALUE);
         return resultPoint;
     }
