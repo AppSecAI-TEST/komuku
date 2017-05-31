@@ -22,6 +22,10 @@ public class GameMap {
         return true;
     }
 
+    public Color[][] getMap() {
+        return map;
+    }
+
     public Color getColor(Point point) {
         return map[point.getX()][point.getY()];
     }

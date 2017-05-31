@@ -5,13 +5,17 @@ import entity.Point;
 import enumeration.Color;
 import enumeration.Deep;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
 public class Game {
 
     private boolean debug = false;
+
+    private long debugTime = new Date().getTime();
 
     private Deep searchDeep;
 
@@ -22,6 +26,8 @@ public class Game {
     private int count = 0;
 
     private GameMap gameMap;
+
+    private CacheMap cacheMap = new CacheMap();
 
     private Counter counter = new Counter();
 
@@ -44,6 +50,7 @@ public class Game {
             return null;
         }
         getMaxScore(searchDeep.getValue(), color, Integer.MAX_VALUE);
+        cacheMap.clear();
         return resultPoint;
     }
 
@@ -65,8 +72,15 @@ public class Game {
 
     private int getMaxScore(int level, Color color, int parentMin) {
         if (level == 0) {
+            //分数缓存表
+            Integer cacheValue = cacheMap.getCacheScore(gameMap.getMap());
+            if (cacheValue != null) {
+                return cacheValue;
+            }
             count++;
-            return Score.getMapScore(gameMap, color);
+            int score = Score.getMapScore(gameMap, color);
+            cacheMap.recordScore(gameMap.getMap(), score);
+            return score;
         }
         if (LevelProcessor.win(gameMap) != null) {
             count++;
@@ -133,7 +147,7 @@ public class Game {
 
     private void printInfo(Point point, int value) {
         if (debug) {
-            System.out.println(point.getX() + " " + point.getY() + ": " + value + " count: " + count);
+            System.out.println(point.getX() + " " + point.getY() + ": " + value + " count: " + count + " time: " + ((new Date().getTime() - debugTime)) + "ms");
         }
     }
 }
