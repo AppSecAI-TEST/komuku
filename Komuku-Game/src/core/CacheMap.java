@@ -5,7 +5,7 @@ import enumeration.Color;
 import java.util.HashMap;
 import java.util.Random;
 
-public class CacheMap {
+class CacheMap {
 
     private HashMap<Long, Integer> scoreMap = new HashMap<>();
 
@@ -23,16 +23,28 @@ public class CacheMap {
             }
     }
 
-    public void recordScore(Color[][] map, int score) {
+    void recordScore(Color[][] map, int score) {
         scoreMap.put(getHashCode(map), score);
     }
 
-    public Integer getCacheScore(Color[][] map) {
+    Integer getCacheScore(Color[][] map) {
         return scoreMap.get(getHashCode(map));
     }
 
-    public void clear() {
+    void clear() {
         scoreMap.clear();
+    }
+
+    int getCacheScore(Color color, GameMap gameMap, Counter counter) {
+        //分数缓存表
+        Integer cacheValue = getCacheScore(gameMap.getMap());
+        if (cacheValue != null) {
+            return cacheValue;
+        }
+        counter.plusCount();
+        int score = Score.getMapScore(gameMap, color);
+        recordScore(gameMap.getMap(), score);
+        return score;
     }
 
     private long getHashCode(Color[][] map) {
@@ -50,4 +62,6 @@ public class CacheMap {
             }
         return value;
     }
+
+
 }

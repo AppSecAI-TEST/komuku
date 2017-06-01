@@ -5,7 +5,6 @@ import entity.Point;
 import enumeration.Color;
 import enumeration.Deep;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -13,23 +12,20 @@ import java.util.Random;
 
 public class Game {
 
-    private boolean debug = false;
-
-    private long debugTime = new Date().getTime();
-
     private Deep searchDeep;
-
-    private List<Point> resultList = new ArrayList<>();
-
-    private Point resultPoint;
-
-    private int count = 0;
 
     private GameMap gameMap;
 
     private CacheMap cacheMap = new CacheMap();
 
     private Counter counter = new Counter();
+
+    private Result result = new Result();
+
+    private ConsolePrinter consolePrinter = new ConsolePrinter(counter);
+
+    private Color aiColor;
+
 
     public void init(Color[][] map, Deep deep) {
         gameMap = new GameMap(map);
@@ -41,17 +37,16 @@ public class Game {
     }
 
     public Point search(Color color) {
-        resultPoint = null;
-        resultList.clear();
+        result.reset();
         counter.clear();
-        count = 0;
+        aiColor = color;
         Deep searchDeep = this.searchDeep;
         if (LevelProcessor.win(gameMap) != null) {
             return null;
         }
-        getMaxScore(searchDeep.getValue(), color, Integer.MAX_VALUE);
+        dfsScore(searchDeep.getValue(), color, Integer.MAX_VALUE, 0);
         cacheMap.clear();
-        return resultPoint;
+        return result.getPoint();
     }
 
     public Color win() {
@@ -66,88 +61,60 @@ public class Game {
         return data;
     }
 
-    public void setDebug(boolean debug) {
-        this.debug = debug;
-    }
-
-    private int getMaxScore(int level, Color color, int parentMin) {
+    private int dfsScore(int level, Color color, Integer parentMin, Integer parentMax) {
+        //叶子分数计算
         if (level == 0) {
-            //分数缓存表
-            Integer cacheValue = cacheMap.getCacheScore(gameMap.getMap());
-            if (cacheValue != null) {
-                return cacheValue;
+            if (Config.scoreCacheEnable) {
+                return cacheMap.getCacheScore(aiColor, gameMap, counter);
             }
-            count++;
-            int score = Score.getMapScore(gameMap, color);
-            cacheMap.recordScore(gameMap.getMap(), score);
-            return score;
+            counter.plusCount();
+            return Score.getMapScore(gameMap, color);
         }
+        //输赢判定
         if (LevelProcessor.win(gameMap) != null) {
-            count++;
+            counter.plusCount();
             return Score.getMapScore(gameMap, color);
         }
 
-        int max = Integer.MIN_VALUE;
+        int extreme = color == aiColor ? Integer.MIN_VALUE : Integer.MAX_VALUE;
         List<Point> points = LevelProcessor.getExpandPoints(gameMap);
+        //进度计算
         if (level == searchDeep.getValue()) {
             counter.setAllStep(points.size());
         }
+        //遍历扩展节点
         for (Point point : points) {
             gameMap.setColor(point, color);
-            int value = getMinScore(level - 1, color.getOtherColor(), max);
-            if (value > parentMin) {
-                gameMap.setColor(point, Color.NULL);
-                return value;
-            }
-            if (level == searchDeep.getValue()) {
-                if (value >= max) {
-                    recordResult(point, value, max);
+            if (color == aiColor) {
+                int value = dfsScore(level - 1, color.getOtherColor(), null, extreme);
+                if (value > parentMin) {
+                    gameMap.setColor(point, Color.NULL);
+                    return value;
                 }
-                counter.plus();
-                printInfo(point, value);
+                if (level == searchDeep.getValue()) {
+                    if (value >= extreme) {
+                        result.add(point, value);
+                    }
+                    counter.plus();
+                    consolePrinter.printInfo(point, value);
+                }
+                if (value > extreme) {
+                    extreme = value;
+                }
             }
-            if (value >= max) {
-                max = value;
-            }
-            gameMap.setColor(point, Color.NULL);
-        }
-        return max;
-    }
-
-    private int getMinScore(int level, Color color, int parentMin) {
-        if (LevelProcessor.win(gameMap) != null) {
-            count++;
-            return Score.getMapScore(gameMap, color.getOtherColor());
-        }
-
-        int min = Integer.MAX_VALUE;
-        List<Point> points = LevelProcessor.getExpandPoints(gameMap);
-        for (Point point : points) {
-            gameMap.setColor(point, color);
-            int value = getMaxScore(level - 1, color.getOtherColor(), min);
-            if (value < parentMin) {
-                gameMap.setColor(point, Color.NULL);
-                return value;
-            }
-            if (value < min) {
-                min = value;
+            if (color != aiColor) {
+                int value = dfsScore(level - 1, color.getOtherColor(), extreme, null);
+                if (value < parentMax) {
+                    gameMap.setColor(point, Color.NULL);
+                    return value;
+                }
+                if (value < extreme) {
+                    extreme = value;
+                }
             }
             gameMap.setColor(point, Color.NULL);
         }
-        return min;
+        return extreme;
     }
 
-    private void recordResult(Point point, int value, int max) {
-        if (value > max) {
-            resultList.clear();
-        }
-        resultList.add(point);
-        resultPoint = resultList.get(new Random().nextInt(resultList.size()));
-    }
-
-    private void printInfo(Point point, int value) {
-        if (debug) {
-            System.out.println(point.getX() + " " + point.getY() + ": " + value + " count: " + count + " time: " + ((new Date().getTime() - debugTime)) + "ms");
-        }
-    }
 }

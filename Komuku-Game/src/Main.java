@@ -23,13 +23,13 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("正在初始化数据...");
-        game.init(map, Deep.SIX);
+        game.init(map, Deep.FOUR);
         System.out.println("开始计算...");
         if (game.win() != null) {
             System.out.println(game.win() + " win");
             return;
         }
-        game.setDebug(debug);
+        Config.debug = true;
         if (!debug) {
             listen();
         }

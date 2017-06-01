@@ -8,4 +8,7 @@ public class Config {
 
     public final static int size = 15;
 
+    public static boolean debug = false;
+
+    public static boolean scoreCacheEnable = false;
 }
