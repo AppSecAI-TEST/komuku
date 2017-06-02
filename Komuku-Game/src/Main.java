@@ -19,17 +19,17 @@ public class Main {
 
     private static Point result = null;
 
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     public static void main(String[] args) {
         System.out.println("正在初始化数据...");
-        game.init(map, Deep.FOUR);
+        game.init(map);
         System.out.println("开始计算...");
         if (game.win() != null) {
             System.out.println(game.win() + " win");
             return;
         }
-        Config.debug = true;
+        Config.debug = debug;
         if (!debug) {
             listen();
         }
@@ -123,7 +123,7 @@ public class Main {
                     currentProgress = data.getFinishStep();
                 }
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(200);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

@@ -27,6 +27,10 @@ class LevelProcessor {
         return null;
     }
 
+    static List<Point> getComboPoints(GameMap gameMap){
+        return null;
+    }
+
     static List<Point> getExpandPoints(GameMap gameMap) {
         List<Point> result = new ArrayList<>();
         List<Integer> score = new ArrayList<>();

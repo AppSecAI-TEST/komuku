@@ -3,16 +3,12 @@ package core;
 import entity.CountData;
 import entity.Point;
 import enumeration.Color;
+import enumeration.ComboDeep;
 import enumeration.Deep;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 public class Game {
-
-    private Deep searchDeep;
 
     private GameMap gameMap;
 
@@ -26,25 +22,18 @@ public class Game {
 
     private Color aiColor;
 
-
-    public void init(Color[][] map, Deep deep) {
-        gameMap = new GameMap(map);
-        searchDeep = deep;
-    }
-
     public void init(Color[][] map) {
-        init(map, Deep.FOUR);
+        gameMap = new GameMap(map);
     }
 
     public Point search(Color color) {
         result.reset();
         counter.clear();
         aiColor = color;
-        Deep searchDeep = this.searchDeep;
         if (LevelProcessor.win(gameMap) != null) {
             return null;
         }
-        dfsScore(searchDeep.getValue(), color, Integer.MAX_VALUE, 0);
+        dfsScore(Config.searchDeep.getValue(), color, Integer.MAX_VALUE, 0);
         cacheMap.clear();
         return result.getPoint();
     }
@@ -73,13 +62,13 @@ public class Game {
         //输赢判定
         if (LevelProcessor.win(gameMap) != null) {
             counter.plusCount();
-            return Score.getMapScore(gameMap, color);
+            return Score.getMapScore(gameMap, aiColor);
         }
 
         int extreme = color == aiColor ? Integer.MIN_VALUE : Integer.MAX_VALUE;
         List<Point> points = LevelProcessor.getExpandPoints(gameMap);
         //进度计算
-        if (level == searchDeep.getValue()) {
+        if (level == Config.searchDeep.getValue()) {
             counter.setAllStep(points.size());
         }
         //遍历扩展节点
@@ -91,7 +80,7 @@ public class Game {
                     gameMap.setColor(point, Color.NULL);
                     return value;
                 }
-                if (level == searchDeep.getValue()) {
+                if (level == Config.searchDeep.getValue()) {
                     if (value >= extreme) {
                         result.add(point, value);
                     }
@@ -116,5 +105,4 @@ public class Game {
         }
         return extreme;
     }
-
 }
