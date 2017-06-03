@@ -36,17 +36,55 @@ class LevelProcessor {
 
         List<Point> result = new ArrayList<>();
         points.forEach(point -> {
-            for (int i = 0; i < 8; i++) {
-                //攻击
-                if (gameMap.isOneToFive(color, point, i)) {
-                    result.add(point);
-                    return;
-                }
+            for (int i = 0; i < 4; i++) {
+                int headCurrent = gameMap.getMaxSequenceWithoutCurrent(color, point, i);
+                int tailCurrent = gameMap.getMaxSequenceWithoutCurrent(color, point, gameMap.getOtherDirect(i));
+                boolean headLive = gameMap.getColor(gameMap.getRelatePoint(point, i, headCurrent + 1)) == Color.NULL;
+                boolean tailLive = gameMap.getColor(gameMap.getRelatePoint(point, gameMap.getOtherDirect(i), tailCurrent + 1)) == Color.NULL;
 
-                //防守
-                if (gameMap.isOneToFive(color.getOtherColor(), point, i)) {
+                //连5
+                if (headCurrent + tailCurrent >= 4) {
                     result.add(point);
-                    return;
+                }
+                //连4
+                if (headCurrent + tailCurrent == 3) {
+                    if (headLive || tailLive) {
+                        result.add(point);
+                    }
+                }
+                //连3
+                if (headCurrent + tailCurrent == 2) {
+                    if (headLive && tailLive) {
+                        result.add(point);
+                    }
+                }
+                //断连4
+
+                //断连3
+
+            }
+            for (int i = 0; i < 4; i++) {
+                int headOther = gameMap.getMaxSequenceWithoutCurrent(color.getOtherColor(), point, i);
+                int tailOther = gameMap.getMaxSequenceWithoutCurrent(color.getOtherColor(), point, gameMap.getOtherDirect(i));
+                boolean headOtherLive = gameMap.getColor(gameMap.getRelatePoint(point, i, headOther + 1)) == Color.NULL;
+                boolean tailOtherLive = gameMap.getColor(gameMap.getRelatePoint(point, gameMap.getOtherDirect(i), tailOther + 1)) == Color.NULL;
+
+                //防4连和断4连
+                if (headOther + tailOther >= 4) {
+                    result.add(point);
+                }
+                //防断3连
+                if (headOther > 0 && tailOther > 0 && headOther + tailOther == 3) {
+                    if (headOtherLive && tailOtherLive) {
+                        result.add(point);
+                    }
+                }
+                //防3连
+                if (headOther == 3 && tailOther == 0 && headOtherLive) {
+                    result.add(point);
+                }
+                if (tailOther == 3 && headOther == 0 && tailOtherLive) {
+                    result.add(point);
                 }
             }
         });
@@ -124,15 +162,7 @@ class LevelProcessor {
         Color[][] map = MapDriver.readMap();
         GameMap gameMap = new GameMap(map);
 
-        Point point = new Point(10, 5);
-        for (int i = 0; i < 4; i++) {
-            Point a = gameMap.getRelatePoint(point, i, 1);
-            System.out.println(a.getX() + " " + a.getY());
-        }
-
-        for (int i = 0; i < 4; i++) {
-            Point a = gameMap.getRelatePoint(point, gameMap.getOtherDirect(i), 1);
-            System.out.println(a.getX() + " " + a.getY());
-        }
+        List<Point> points = getComboPoints(gameMap, Color.WHITE);
+        points.forEach(point -> System.out.println(point.getX() + " " + point.getY()));
     }
 }

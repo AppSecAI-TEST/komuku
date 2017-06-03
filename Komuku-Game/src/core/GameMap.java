@@ -30,6 +30,9 @@ public class GameMap {
     }
 
     public Color getColor(Point point) {
+        if (!reachable(point)) {
+            return null;
+        }
         return map[point.getX()][point.getY()];
     }
 
@@ -58,19 +61,9 @@ public class GameMap {
         return true;
     }
 
-    boolean isOneToFive(Color color, Point point, int direct) {
-        int head = getMaxSequenceWithoutCurrent(color, point, direct);
-        int tail = getMaxSequenceWithoutCurrent(color, point, getOtherDirect(direct));
-        return head + tail >= 5;
-    }
-
-    boolean isOneToCloseFour(Color color, Point point, int direct) {
-        return false;
-    }
-
     int getMaxSequenceWithoutCurrent(Color color, Point point, int direct) {
         int value = 0;
-        for (int i = 1; i < 4; i++) {
+        for (int i = 1; i < 5; i++) {
             Point fresh = getRelatePoint(point, direct, i);
             if (!reachable(fresh)) {
                 return value;
