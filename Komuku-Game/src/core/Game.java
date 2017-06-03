@@ -4,7 +4,7 @@ import entity.CountData;
 import entity.Point;
 import enumeration.Color;
 import enumeration.ComboDeep;
-import enumeration.Deep;
+import enumeration.SearchType;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ public class Game {
         if (LevelProcessor.win(gameMap) != null) {
             return null;
         }
-        dfsScore(Config.searchDeep.getValue(), color, Integer.MAX_VALUE, 0);
+        dfsScore(Config.searchDeep.getValue(), color, Integer.MAX_VALUE, 0, SearchType.NORMAL);
         cacheMap.clear();
         return result.getPoint();
     }
@@ -50,32 +50,38 @@ public class Game {
         return data;
     }
 
-    private int dfsScore(int level, Color color, Integer parentMin, Integer parentMax) {
+    private int dfsScore(int level, Color color, Integer parentMin, Integer parentMax, SearchType searchType) {
         //叶子分数计算
         if (level == 0) {
             if (Config.scoreCacheEnable) {
                 return cacheMap.getCacheScore(aiColor, gameMap, counter);
             }
-            counter.plusCount();
-            return Score.getMapScore(gameMap, color);
+            if (searchType == SearchType.NORMAL) {
+                return dfsScore(Config.comboDeep.getValue(), aiColor, Integer.MAX_VALUE, 0, SearchType.COMBO);
+            }
+            return getScore();
         }
         //输赢判定
         if (LevelProcessor.win(gameMap) != null) {
-            counter.plusCount();
-            return Score.getMapScore(gameMap, aiColor);
+            return getScore();
         }
-
-        int extreme = color == aiColor ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-        List<Point> points = LevelProcessor.getExpandPoints(gameMap);
+        //计算扩展节点
+        List<Point> points = searchType == SearchType.NORMAL ?
+                LevelProcessor.getExpandPoints(gameMap) :
+                LevelProcessor.getComboPoints(gameMap, color);
+        if (points == null || points.isEmpty()) {
+            return getScore();
+        }
         //进度计算
         if (level == Config.searchDeep.getValue()) {
             counter.setAllStep(points.size());
         }
         //遍历扩展节点
+        int extreme = color == aiColor ? Integer.MIN_VALUE : Integer.MAX_VALUE;
         for (Point point : points) {
             gameMap.setColor(point, color);
             if (color == aiColor) {
-                int value = dfsScore(level - 1, color.getOtherColor(), null, extreme);
+                int value = dfsScore(level - 1, color.getOtherColor(), null, extreme, searchType);
                 if (value > parentMin) {
                     gameMap.setColor(point, Color.NULL);
                     return value;
@@ -92,7 +98,7 @@ public class Game {
                 }
             }
             if (color != aiColor) {
-                int value = dfsScore(level - 1, color.getOtherColor(), extreme, null);
+                int value = dfsScore(level - 1, color.getOtherColor(), extreme, null, searchType);
                 if (value < parentMax) {
                     gameMap.setColor(point, Color.NULL);
                     return value;
@@ -104,5 +110,10 @@ public class Game {
             gameMap.setColor(point, Color.NULL);
         }
         return extreme;
+    }
+
+    private int getScore() {
+        counter.plusCount();
+        return Score.getMapScore(gameMap, aiColor);
     }
 }

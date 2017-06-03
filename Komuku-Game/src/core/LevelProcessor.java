@@ -2,6 +2,7 @@ package core;
 
 import entity.Point;
 import enumeration.Color;
+import helper.MapDriver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,32 +28,38 @@ class LevelProcessor {
         return null;
     }
 
-    static List<Point> getComboPoints(GameMap gameMap){
-        return null;
+    static List<Point> getComboPoints(GameMap gameMap, Color color) {
+        List<Point> points;
+
+        int range = 3;
+        points = gameMap.getNeighbor(range);
+
+        List<Point> result = new ArrayList<>();
+        points.forEach(point -> {
+            for (int i = 0; i < 8; i++) {
+                //攻击
+                if (gameMap.isOneToFive(color, point, i)) {
+                    result.add(point);
+                    return;
+                }
+
+                //防守
+                if (gameMap.isOneToFive(color.getOtherColor(), point, i)) {
+                    result.add(point);
+                    return;
+                }
+            }
+        });
+        return result;
     }
 
     static List<Point> getExpandPoints(GameMap gameMap) {
-        List<Point> result = new ArrayList<>();
+        List<Point> result;
         List<Integer> score = new ArrayList<>();
 
-        boolean[][] signal = new boolean[Config.size][Config.size];
         int range = 3;
-
-        for (int i = 0; i < Config.size; i++)
-            for (int j = 0; j < Config.size; j++) {
-                if (gameMap.getColor(i, j) != Color.NULL) {
-                    findRange(gameMap, new Point(i, j), range, signal);
-                }
-            }
-
-        for (int i = 0; i < Config.size; i++)
-            for (int j = 0; j < Config.size; j++) {
-                if (gameMap.getColor(i, j) == Color.NULL && signal[i][j]) {
-                    Point point = new Point(i, j);
-                    result.add(point);
-                    score.add(getScore(gameMap, point));
-                }
-            }
+        result = gameMap.getNeighbor(range);
+        result.forEach(point -> score.add(getScore(gameMap, point)));
 
         if (result.isEmpty()) {
             result.add(new Point(7, 7));
@@ -66,23 +73,6 @@ class LevelProcessor {
         return result;
     }
 
-    private static void findRange(GameMap gameMap, Point point, int step, boolean[][] signal) {
-        if (step == 0) {
-            return;
-        }
-        if (signal[point.getX()][point.getY()]) {
-            return;
-        }
-        signal[point.getX()][point.getY()] = true;
-        for (int i = 0; i < 8; i++) {
-            Point fresh = gameMap.getRelatePoint(point, i, 1);
-            if (gameMap.reachable(fresh))
-                if (gameMap.getColor(fresh) == Color.NULL) {
-                    findRange(gameMap, fresh, step - 1, signal);
-                }
-        }
-    }
-
     private static int getScore(GameMap gameMap, Point point) {
         int value = 0;
         for (int i = 0; i < 8; i++) {
@@ -93,25 +83,6 @@ class LevelProcessor {
                     int length = gameMap.getMaxSequence(color, fresh, i);
                     if (length > 5) {
                         length = 5;
-                    }
-                    int tail = 4 - length;
-                    //尾部需要检查个数以及颜色
-                    if (tail > 0) {
-                        boolean pass = false;
-                        for (int k = 1; k <= tail; k++) {
-                            Point tailPoint = gameMap.getRelatePoint(point, i, -k);
-                            if (!gameMap.reachable(tailPoint)) {
-                                pass = true;
-                                break;
-                            }
-                            if (gameMap.getColor(tailPoint) == color.getOtherColor()) {
-                                pass = true;
-                                break;
-                            }
-                        }
-                        if (pass) {
-                            continue;
-                        }
                     }
                     value += sequenceWeight[length];
                 }
@@ -147,5 +118,21 @@ class LevelProcessor {
             System.out.println(point.getX() + " " + point.getY());
         });
         System.out.printf(String.valueOf(result.size()));
+    }
+
+    public static void main(String[] args) {
+        Color[][] map = MapDriver.readMap();
+        GameMap gameMap = new GameMap(map);
+
+        Point point = new Point(10, 5);
+        for (int i = 0; i < 4; i++) {
+            Point a = gameMap.getRelatePoint(point, i, 1);
+            System.out.println(a.getX() + " " + a.getY());
+        }
+
+        for (int i = 0; i < 4; i++) {
+            Point a = gameMap.getRelatePoint(point, gameMap.getOtherDirect(i), 1);
+            System.out.println(a.getX() + " " + a.getY());
+        }
     }
 }

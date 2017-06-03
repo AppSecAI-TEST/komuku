@@ -2,15 +2,19 @@ package enumeration;
 
 public enum ComboDeep {
 
-    FIVE(5),
+    SIX(6),
 
-    SEVEN(7),
+    EIGHT(8),
 
-    NINE(9);
+    TEN(10);
 
     private int value;
 
     ComboDeep(int value) {
         this.value = value;
+    }
+
+    public int getValue() {
+        return value;
     }
 }

@@ -13,7 +13,7 @@ public class Config {
 
     public static Deep searchDeep = Deep.FOUR;
 
-    public static ComboDeep comboDeep = ComboDeep.FIVE;
+    public static ComboDeep comboDeep = ComboDeep.SIX;
 
     public static boolean debug = false;
 
