@@ -45,23 +45,70 @@ class LevelProcessor {
                 //连5
                 if (headCurrent + tailCurrent >= 4) {
                     result.add(point);
+                    return;
                 }
                 //连4
                 if (headCurrent + tailCurrent == 3) {
                     if (headLive || tailLive) {
                         result.add(point);
+                        return;
                     }
                 }
                 //连3
                 if (headCurrent + tailCurrent == 2) {
                     if (headLive && tailLive) {
                         result.add(point);
+                        return;
                     }
                 }
                 //断连4
-
+                for (int k = -4; k <= 0; k++) {
+                    if (!gameMap.reachable(gameMap.getRelatePoint(point, i, k)) ||
+                            !gameMap.reachable(gameMap.getRelatePoint(point, i, k + 4))) {
+                        continue;
+                    }
+                    int count = 0;
+                    for (int t = k; t <= k + 4; t++) {
+                        Point p = gameMap.getRelatePoint(point, i, t);
+                        if (gameMap.getColor(p) == color) {
+                            count++;
+                        }
+                        if (gameMap.getColor(p) == color.getOtherColor()) {
+                            count = Integer.MIN_VALUE;
+                            break;
+                        }
+                    }
+                    if (count == 3) {
+                        result.add(point);
+                        return;
+                    }
+                }
                 //断连3
-
+                for (int k = -4; k <= -1; k++) {
+                    if (!gameMap.reachable(gameMap.getRelatePoint(point, i, k)) ||
+                            !gameMap.reachable(gameMap.getRelatePoint(point, i, k + 5))) {
+                        continue;
+                    }
+                    if (gameMap.getColor(gameMap.getRelatePoint(point, i, k)) != Color.NULL ||
+                            gameMap.getColor(gameMap.getRelatePoint(point, i, k + 5)) != Color.NULL) {
+                        continue;
+                    }
+                    int count = 0;
+                    for (int t = k + 1; t <= k + 4; t++) {
+                        Point p = gameMap.getRelatePoint(point, i, t);
+                        if (gameMap.getColor(p) == color) {
+                            count++;
+                        }
+                        if (gameMap.getColor(p) == color.getOtherColor()) {
+                            count = Integer.MIN_VALUE;
+                            break;
+                        }
+                    }
+                    if (count == 2) {
+                        result.add(point);
+                        return;
+                    }
+                }
             }
             for (int i = 0; i < 4; i++) {
                 int headOther = gameMap.getMaxSequenceWithoutCurrent(color.getOtherColor(), point, i);
@@ -72,19 +119,23 @@ class LevelProcessor {
                 //防4连和断4连
                 if (headOther + tailOther >= 4) {
                     result.add(point);
+                    return;
                 }
                 //防断3连
                 if (headOther > 0 && tailOther > 0 && headOther + tailOther == 3) {
                     if (headOtherLive && tailOtherLive) {
                         result.add(point);
+                        return;
                     }
                 }
                 //防3连
                 if (headOther == 3 && tailOther == 0 && headOtherLive) {
                     result.add(point);
+                    return;
                 }
                 if (tailOther == 3 && headOther == 0 && tailOtherLive) {
                     result.add(point);
+                    return;
                 }
             }
         });
