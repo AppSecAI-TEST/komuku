@@ -73,7 +73,7 @@ public class Game {
             return getScore();
         }
         //进度计算
-        if (level == Config.searchDeep.getValue()) {
+        if (level == Config.searchDeep.getValue() && searchType == SearchType.NORMAL) {
             counter.setAllStep(points.size());
         }
         //遍历扩展节点
@@ -86,7 +86,7 @@ public class Game {
                     gameMap.setColor(point, Color.NULL);
                     return value;
                 }
-                if (level == Config.searchDeep.getValue()) {
+                if (level == Config.searchDeep.getValue() && searchType == SearchType.NORMAL) {
                     if (value >= extreme) {
                         result.add(point, value);
                     }

@@ -100,10 +100,11 @@ public class GameMap {
     List<Point> getNeighbor(int range) {
         List<Point> result = new ArrayList<>();
         boolean[][] signal = new boolean[Config.size][Config.size];
+        boolean[][][] flag = new boolean[Config.size][Config.size][range + 1];
         for (int i = 0; i < Config.size; i++)
             for (int j = 0; j < Config.size; j++) {
                 if (getColor(i, j) != Color.NULL) {
-                    findNeighbor(new Point(i, j), range, signal);
+                    findNeighbor(new Point(i, j), range, signal, flag);
                 }
             }
 
@@ -117,19 +118,20 @@ public class GameMap {
         return result;
     }
 
-    private void findNeighbor(Point point, int step, boolean[][] signal) {
+    private void findNeighbor(Point point, int step, boolean[][] signal, boolean[][][] flag) {
         if (step == 0) {
             return;
         }
-        if (signal[point.getX()][point.getY()]) {
+        if (flag[point.getX()][point.getY()][step]) {
             return;
         }
         signal[point.getX()][point.getY()] = true;
+        flag[point.getX()][point.getY()][step] = true;
         for (int i = 0; i < 8; i++) {
             Point fresh = getRelatePoint(point, i, 1);
             if (reachable(fresh))
                 if (getColor(fresh) == Color.NULL) {
-                    findNeighbor(fresh, step - 1, signal);
+                    findNeighbor(fresh, step - 1, signal, flag);
                 }
         }
     }
