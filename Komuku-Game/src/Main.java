@@ -20,7 +20,7 @@ public class Main {
 
     private static Point result = null;
 
-    private static boolean debug = false;
+    private static boolean debug = true;
 
     public static void main(String[] args) {
         System.out.println("正在初始化数据...");

@@ -2,6 +2,7 @@ package core;
 
 import entity.Point;
 import enumeration.Color;
+import enumeration.ComboType;
 import helper.MapDriver;
 
 import java.util.ArrayList;
@@ -14,13 +15,24 @@ class LevelProcessor {
     private static int[] sequenceWeight = {0, 1, 10, 100, 1000, 10000};
 
     static Color win(GameMap gameMap) {
+        Point point = new Point();
         for (int i = 0; i < Config.size; i++)
             for (int j = 0; j < Config.size; j++) {
-                Point point = new Point(i, j);
+                point.setX(i);
+                point.setY(j);
                 if (gameMap.getColor(point) != Color.NULL) {
                     for (int direct = 0; direct < 4; direct++) {
-                        if (gameMap.checkColors(gameMap.getColor(point), point, direct, 0, 4)) {
-                            return gameMap.getColor(point);
+                        Color color = gameMap.getColor(point);
+                        if (gameMap.checkColors(color, point, direct, 0, 3)) {
+                            if (gameMap.getColor(gameMap.getRelatePoint(point, direct, -1)) == Color.NULL &&
+                                    gameMap.getColor(gameMap.getRelatePoint(point, direct, 4)) == Color.NULL) {
+                                {
+                                    return color;
+                                }
+                            }
+                            if (gameMap.getColor(gameMap.getRelatePoint(point, direct, 4)) == color) {
+                                return gameMap.getColor(point);
+                            }
                         }
                     }
                 }
@@ -28,13 +40,16 @@ class LevelProcessor {
         return null;
     }
 
-    static List<Point> getComboPoints(GameMap gameMap, Color color) {
+    static List<Point> getComboPoints(GameMap gameMap, Color color, ComboType comboType) {
         List<Point> points;
 
         int range = 3;
         points = gameMap.getNeighbor(range);
 
         List<Point> result = new ArrayList<>();
+        List<Point> highPoints = new ArrayList<>();
+        List<Point> midPoints = new ArrayList<>();
+        List<Point> lowPoints = new ArrayList<>();
         points.forEach(point -> {
             for (int i = 0; i < 4; i++) {
                 int headCurrent = gameMap.getMaxSequenceWithoutCurrent(color, point, i);
@@ -44,20 +59,13 @@ class LevelProcessor {
 
                 //连5
                 if (headCurrent + tailCurrent >= 4) {
-                    result.add(point);
+                    highPoints.add(point);
                     return;
                 }
                 //连4
                 if (headCurrent + tailCurrent == 3) {
                     if (headLive || tailLive) {
-                        result.add(point);
-                        return;
-                    }
-                }
-                //连3
-                if (headCurrent + tailCurrent == 2) {
-                    if (headLive && tailLive) {
-                        result.add(point);
+                        highPoints.add(point);
                         return;
                     }
                 }
@@ -79,34 +87,44 @@ class LevelProcessor {
                         }
                     }
                     if (count == 3) {
-                        result.add(point);
+                        highPoints.add(point);
                         return;
                     }
                 }
-                //断连3
-                for (int k = -4; k <= -1; k++) {
-                    if (!gameMap.reachable(gameMap.getRelatePoint(point, i, k)) ||
-                            !gameMap.reachable(gameMap.getRelatePoint(point, i, k + 5))) {
-                        continue;
-                    }
-                    if (gameMap.getColor(gameMap.getRelatePoint(point, i, k)) != Color.NULL ||
-                            gameMap.getColor(gameMap.getRelatePoint(point, i, k + 5)) != Color.NULL) {
-                        continue;
-                    }
-                    int count = 0;
-                    for (int t = k + 1; t <= k + 4; t++) {
-                        Point p = gameMap.getRelatePoint(point, i, t);
-                        if (gameMap.getColor(p) == color) {
-                            count++;
-                        }
-                        if (gameMap.getColor(p) == color.getOtherColor()) {
-                            count = Integer.MIN_VALUE;
-                            break;
+
+                if (comboType == ComboType.ATTACK) {
+                    //连3
+                    if (headCurrent + tailCurrent == 2) {
+                        if (headLive && tailLive) {
+                            midPoints.add(point);
+                            return;
                         }
                     }
-                    if (count == 2) {
-                        result.add(point);
-                        return;
+                    //断连3
+                    for (int k = -4; k <= -1; k++) {
+                        if (!gameMap.reachable(gameMap.getRelatePoint(point, i, k)) ||
+                                !gameMap.reachable(gameMap.getRelatePoint(point, i, k + 5))) {
+                            continue;
+                        }
+                        if (gameMap.getColor(gameMap.getRelatePoint(point, i, k)) != Color.NULL ||
+                                gameMap.getColor(gameMap.getRelatePoint(point, i, k + 5)) != Color.NULL) {
+                            continue;
+                        }
+                        int count = 0;
+                        for (int t = k + 1; t <= k + 4; t++) {
+                            Point p = gameMap.getRelatePoint(point, i, t);
+                            if (gameMap.getColor(p) == color) {
+                                count++;
+                            }
+                            if (gameMap.getColor(p) == color.getOtherColor()) {
+                                count = Integer.MIN_VALUE;
+                                break;
+                            }
+                        }
+                        if (count == 2) {
+                            midPoints.add(point);
+                            return;
+                        }
                     }
                 }
             }
@@ -118,27 +136,33 @@ class LevelProcessor {
 
                 //防4连和断4连
                 if (headOther + tailOther >= 4) {
-                    result.add(point);
+                    highPoints.add(point);
                     return;
                 }
-                //防断3连
-                if (headOther > 0 && tailOther > 0 && headOther + tailOther == 3) {
-                    if (headOtherLive && tailOtherLive) {
-                        result.add(point);
+
+                if (comboType == ComboType.DEFENCE) {
+                    //防断3连
+                    if (headOther > 0 && tailOther > 0 && headOther + tailOther == 3) {
+                        if (headOtherLive && tailOtherLive) {
+                            lowPoints.add(point);
+                            return;
+                        }
+                    }
+                    //防3连
+                    if (headOther == 3 && tailOther == 0 && headOtherLive) {
+                        lowPoints.add(point);
+                        return;
+                    }
+                    if (tailOther == 3 && headOther == 0 && tailOtherLive) {
+                        lowPoints.add(point);
                         return;
                     }
                 }
-                //防3连
-                if (headOther == 3 && tailOther == 0 && headOtherLive) {
-                    result.add(point);
-                    return;
-                }
-                if (tailOther == 3 && headOther == 0 && tailOtherLive) {
-                    result.add(point);
-                    return;
-                }
             }
         });
+        result.addAll(highPoints);
+        result.addAll(midPoints);
+        result.addAll(lowPoints);
         return result;
     }
 
@@ -213,7 +237,7 @@ class LevelProcessor {
         Color[][] map = MapDriver.readMap();
         GameMap gameMap = new GameMap(map);
 
-        List<Point> points = getComboPoints(gameMap, Color.WHITE);
+        List<Point> points = getComboPoints(gameMap, Color.WHITE, ComboType.ATTACK);
         points.forEach(point -> System.out.println(point.getX() + " " + point.getY()));
     }
 }

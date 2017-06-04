@@ -13,9 +13,9 @@ public class Config {
 
     public static Deep searchDeep = Deep.FOUR;
 
-    public static ComboDeep comboDeep = ComboDeep.TEN;
+    public static ComboDeep comboDeep = ComboDeep.TWO;
 
     public static boolean debug = false;
 
-    public static boolean scoreCacheEnable = true;
+    public static boolean scoreCacheEnable = false;
 }

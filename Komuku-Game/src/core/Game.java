@@ -4,6 +4,7 @@ import entity.CountData;
 import entity.Point;
 import enumeration.Color;
 import enumeration.ComboDeep;
+import enumeration.ComboType;
 import enumeration.SearchType;
 
 import java.util.List;
@@ -53,11 +54,8 @@ public class Game {
     private int dfsScore(int level, Color color, Integer parentMin, Integer parentMax, SearchType searchType) {
         //叶子分数计算
         if (level == 0) {
-            if (Config.scoreCacheEnable) {
-                return cacheMap.getCacheScore(aiColor, gameMap, counter);
-            }
             if (searchType == SearchType.NORMAL) {
-                return dfsScore(Config.comboDeep.getValue(), aiColor, Integer.MAX_VALUE, 0, SearchType.COMBO);
+                return dfsScore(Config.comboDeep.getValue(), aiColor, parentMin, 0, SearchType.COMBO);
             }
             return getScore();
         }
@@ -66,9 +64,14 @@ public class Game {
             return getScore();
         }
         //计算扩展节点
-        List<Point> points = searchType == SearchType.NORMAL ?
-                LevelProcessor.getExpandPoints(gameMap) :
-                LevelProcessor.getComboPoints(gameMap, color);
+        List<Point> points;
+        if (searchType == SearchType.NORMAL) {
+            points = LevelProcessor.getExpandPoints(gameMap);
+        } else {
+            points = color == aiColor ?
+                    LevelProcessor.getComboPoints(gameMap, color, ComboType.ATTACK) :
+                    LevelProcessor.getComboPoints(gameMap, color, ComboType.DEFENCE);
+        }
         if (points == null || points.isEmpty()) {
             return getScore();
         }
@@ -113,6 +116,9 @@ public class Game {
     }
 
     private int getScore() {
+        if (Config.scoreCacheEnable) {
+            return cacheMap.getCacheScore(aiColor, gameMap, counter);
+        }
         counter.plusCount();
         return Score.getMapScore(gameMap, aiColor);
     }
