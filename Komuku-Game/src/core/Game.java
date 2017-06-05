@@ -3,9 +3,6 @@ package core;
 import entity.CountData;
 import entity.Point;
 import enumeration.Color;
-import enumeration.ComboDeep;
-import enumeration.ComboType;
-import enumeration.SearchType;
 
 import java.util.List;
 
@@ -34,7 +31,7 @@ public class Game {
         if (LevelProcessor.win(gameMap) != null) {
             return null;
         }
-        dfsScore(Config.searchDeep.getValue(), color, Integer.MAX_VALUE, 0, SearchType.NORMAL);
+        dfsScore(Config.searchDeep.getValue(), color, Integer.MAX_VALUE, 0);
         cacheMap.clear();
         return result.getPoint();
     }
@@ -51,12 +48,9 @@ public class Game {
         return data;
     }
 
-    private int dfsScore(int level, Color color, Integer parentMin, Integer parentMax, SearchType searchType) {
+    private int dfsScore(int level, Color color, Integer parentMin, Integer parentMax) {
         //叶子分数计算
         if (level == 0) {
-            if (searchType == SearchType.NORMAL) {
-                return dfsScore(Config.comboDeep.getValue(), aiColor, parentMin, 0, SearchType.COMBO);
-            }
             return getScore();
         }
         //输赢判定
@@ -65,18 +59,14 @@ public class Game {
         }
         //计算扩展节点
         List<Point> points;
-        if (searchType == SearchType.NORMAL) {
-            points = LevelProcessor.getExpandPoints(gameMap);
-        } else {
-            points = color == aiColor ?
-                    LevelProcessor.getComboPoints(gameMap, color, ComboType.ATTACK) :
-                    LevelProcessor.getComboPoints(gameMap, color, ComboType.DEFENCE);
-        }
+
+        points = LevelProcessor.getExpandPoints(gameMap);
+
         if (points == null || points.isEmpty()) {
             return getScore();
         }
         //进度计算
-        if (level == Config.searchDeep.getValue() && searchType == SearchType.NORMAL) {
+        if (level == Config.searchDeep.getValue()) {
             counter.setAllStep(points.size());
         }
         //遍历扩展节点
@@ -84,12 +74,12 @@ public class Game {
         for (Point point : points) {
             gameMap.setColor(point, color);
             if (color == aiColor) {
-                int value = dfsScore(level - 1, color.getOtherColor(), null, extreme, searchType);
+                int value = dfsScore(level - 1, color.getOtherColor(), null, extreme);
                 if (value > parentMin) {
                     gameMap.setColor(point, Color.NULL);
                     return value;
                 }
-                if (level == Config.searchDeep.getValue() && searchType == SearchType.NORMAL) {
+                if (level == Config.searchDeep.getValue()) {
                     if (value >= extreme) {
                         result.add(point, value);
                     }
@@ -101,7 +91,7 @@ public class Game {
                 }
             }
             if (color != aiColor) {
-                int value = dfsScore(level - 1, color.getOtherColor(), extreme, null, searchType);
+                int value = dfsScore(level - 1, color.getOtherColor(), extreme, null);
                 if (value < parentMax) {
                     gameMap.setColor(point, Color.NULL);
                     return value;
