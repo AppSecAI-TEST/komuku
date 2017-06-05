@@ -1,11 +1,15 @@
 package core;
 
+import entity.AnalyzedData;
 import entity.Point;
 import enumeration.Color;
 import helper.MapDriver;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 class LevelProcessor {
 
@@ -29,17 +33,13 @@ class LevelProcessor {
         return null;
     }
 
-    static List<Point> getAnalyzedPoints(GameMap gameMap, Color color) {
-        List<Point> points;
+    static AnalyzedData getAnalyzedPoints(GameMap gameMap, Color color) {
+        AnalyzedData data = new AnalyzedData();
 
         int range = 3;
-        points = gameMap.getNeighbor(range);
+        data.setOrigin(new HashSet<>(gameMap.getNeighbor(range)));
 
-        List<Point> result = new ArrayList<>();
-        List<Point> highPoints = new ArrayList<>();
-        List<Point> midPoints = new ArrayList<>();
-        List<Point> lowPoints = new ArrayList<>();
-        points.forEach(point -> {
+        data.getOrigin().forEach(point -> {
             for (int i = 0; i < 4; i++) {
                 int headCurrent = gameMap.getMaxSequenceWithoutCurrent(color, point, i);
                 int tailCurrent = gameMap.getMaxSequenceWithoutCurrent(color, point, gameMap.getOtherDirect(i));
@@ -48,14 +48,12 @@ class LevelProcessor {
 
                 //连5
                 if (headCurrent + tailCurrent >= 4) {
-                    highPoints.add(point);
-                    return;
+                    data.getFiveAttack().add(point);
                 }
                 //连4
                 if (headCurrent + tailCurrent == 3) {
                     if (headLive || tailLive) {
-                        highPoints.add(point);
-                        return;
+                        data.getFourAttack().add(point);
                     }
                 }
                 //断连4
@@ -76,16 +74,14 @@ class LevelProcessor {
                         }
                     }
                     if (count == 3) {
-                        highPoints.add(point);
-                        return;
+                        data.getFourAttack().add(point);
                     }
                 }
 
                 //连3
                 if (headCurrent + tailCurrent == 2) {
                     if (headLive && tailLive) {
-                        midPoints.add(point);
-                        return;
+                        data.getThreeOpenAttack().add(point);
                     }
                 }
                 //断连3
@@ -110,8 +106,7 @@ class LevelProcessor {
                         }
                     }
                     if (count == 2) {
-                        midPoints.add(point);
-                        return;
+                        data.getThreeOpenAttack().add(point);
                     }
                 }
             }
@@ -123,32 +118,25 @@ class LevelProcessor {
 
                 //防4连和断4连
                 if (headOther + tailOther >= 4) {
-                    highPoints.add(point);
-                    return;
+                    data.getFourDefence().add(point);
                 }
 
                 //防断3连
                 if (headOther > 0 && tailOther > 0 && headOther + tailOther == 3) {
                     if (headOtherLive && tailOtherLive) {
-                        lowPoints.add(point);
-                        return;
+                        data.getThreeDefence().add(point);
                     }
                 }
                 //防3连
                 if (headOther == 3 && tailOther == 0 && headOtherLive) {
-                    lowPoints.add(point);
-                    return;
+                    data.getThreeDefence().add(point);
                 }
                 if (tailOther == 3 && headOther == 0 && tailOtherLive) {
-                    lowPoints.add(point);
-                    return;
+                    data.getThreeDefence().add(point);
                 }
             }
         });
-        result.addAll(highPoints);
-        result.addAll(midPoints);
-        result.addAll(lowPoints);
-        return result;
+        return data;
     }
 
     static List<Point> getExpandPoints(GameMap gameMap) {
@@ -230,7 +218,11 @@ class LevelProcessor {
         Color[][] map = MapDriver.readMap();
         GameMap gameMap = new GameMap(map);
 
-        List<Point> points = getAnalyzedPoints(gameMap, Color.WHITE);
-        points.forEach(point -> System.out.println(point.getX() + " " + point.getY()));
+        AnalyzedData points = getAnalyzedPoints(gameMap, Color.BLACK);
+        System.out.println(points.getFiveAttack());
+        System.out.println(points.getFourAttack());
+        System.out.println(points.getThreeOpenAttack());
+        System.out.println(points.getFourDefence());
+        System.out.println(points.getThreeDefence());
     }
 }
