@@ -29,7 +29,7 @@ class LevelProcessor {
         return null;
     }
 
-    static List<Point> getComboPoints(GameMap gameMap, Color color) {
+    static List<Point> getAnalyzedPoints(GameMap gameMap, Color color) {
         List<Point> points;
 
         int range = 3;
@@ -152,6 +152,14 @@ class LevelProcessor {
     }
 
     static List<Point> getExpandPoints(GameMap gameMap) {
+        //如果能连5，则连5
+
+        //如果有对方冲4，则防冲4
+
+        //如果有对方活3，则防活3或者冲四
+
+        //如果没有活3，则返回全部扩展节点
+
         List<Point> result;
         List<Integer> score = new ArrayList<>();
 
@@ -222,7 +230,7 @@ class LevelProcessor {
         Color[][] map = MapDriver.readMap();
         GameMap gameMap = new GameMap(map);
 
-        List<Point> points = getComboPoints(gameMap, Color.WHITE);
+        List<Point> points = getAnalyzedPoints(gameMap, Color.WHITE);
         points.forEach(point -> System.out.println(point.getX() + " " + point.getY()));
     }
 }

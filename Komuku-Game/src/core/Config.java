@@ -1,6 +1,5 @@
 package core;
 
-import enumeration.ComboDeep;
 import enumeration.Deep;
 
 public class Config {
@@ -12,8 +11,6 @@ public class Config {
     public final static int size = 15;
 
     public static Deep searchDeep = Deep.FOUR;
-
-    public static ComboDeep comboDeep = ComboDeep.TWO;
 
     public static boolean debug = false;
 
