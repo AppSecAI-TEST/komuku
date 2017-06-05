@@ -158,7 +158,7 @@ class LevelProcessor {
 
         //如果有对方活3，则防活3或者冲四
 
-        //如果没有活3，则返回全部扩展节点
+        //如果对方没有活3，则返回全部扩展节点
 
         List<Point> result;
         List<Integer> score = new ArrayList<>();
