@@ -22,6 +22,8 @@ public class Main {
 
     private static boolean debug = true;
 
+    private static Color aiColor = Color.WHITE;
+
     public static void main(String[] args) {
         System.out.println("正在初始化数据...");
         game.init(map);
@@ -34,8 +36,8 @@ public class Main {
         if (!debug) {
             listen();
         }
-        result = game.search(Color.WHITE);
-        map[result.getX()][result.getY()] = Color.WHITE;
+        result = game.search(aiColor);
+        map[result.getX()][result.getY()] = aiColor;
         MapDriver.printMap(map);
     }
 

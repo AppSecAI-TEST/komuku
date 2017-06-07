@@ -125,6 +125,8 @@ class LevelProcessor {
                 if (headOther > 0 && tailOther > 0 && headOther + tailOther == 3) {
                     if (headOtherLive && tailOtherLive) {
                         data.getThreeDefence().add(point);
+                        data.getThreeDefence().add(gameMap.getRelatePoint(point, i, headOther + 1));
+                        data.getThreeDefence().add(gameMap.getRelatePoint(point, i, -(tailOther + 1)));
                     }
                 }
                 //防3连
@@ -139,20 +141,11 @@ class LevelProcessor {
         return data;
     }
 
-    static List<Point> getExpandPoints(GameMap gameMap) {
-        //如果能连5，则连5
+    static List<Point> getExpandPoints(GameMap gameMap, Color color) {
+        AnalyzedData data = getAnalyzedPoints(gameMap, color);
+        List<Point> result = selectSet(data);
 
-        //如果有对方冲4，则防冲4
-
-        //如果有对方活3，则防活3或者冲四
-
-        //如果对方没有活3，则返回全部扩展节点
-
-        List<Point> result;
         List<Integer> score = new ArrayList<>();
-
-        int range = 3;
-        result = gameMap.getNeighbor(range);
         result.forEach(point -> score.add(getScore(gameMap, point)));
 
         if (result.isEmpty()) {
@@ -165,6 +158,25 @@ class LevelProcessor {
             printResult(result);
         }
         return result;
+    }
+
+    private static List<Point> selectSet(AnalyzedData data) {
+        List<Point> result;
+        //如果能连5，则连5
+        if (!data.getFiveAttack().isEmpty()) {
+            return new ArrayList<>(data.getFiveAttack());
+        }
+        //如果有对方冲4，则防冲4
+        if (!data.getFourDefence().isEmpty()) {
+            return new ArrayList<>(data.getFourDefence());
+        }
+        //如果有对方活3，则防活3或者冲四
+        if (!data.getThreeDefence().isEmpty()) {
+            return new ArrayList<Point>(data.getFourAttack()) {{
+                addAll(data.getThreeDefence());
+            }};
+        }
+        return new ArrayList<>(data.getOrigin());
     }
 
     private static int getScore(GameMap gameMap, Point point) {
