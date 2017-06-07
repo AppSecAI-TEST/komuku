@@ -60,7 +60,7 @@ public class Game {
         //计算扩展节点
         List<Point> points;
 
-        points = LevelProcessor.getExpandPoints(gameMap, color);
+        points = LevelProcessor.getExpandPoints(gameMap, color, level);
 
         if (points == null || points.isEmpty()) {
             return getScore();
