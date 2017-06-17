@@ -34,8 +34,7 @@ class LevelProcessor {
     static AnalyzedData getAnalyzedPoints(GameMap gameMap, Color color) {
         AnalyzedData data = new AnalyzedData();
 
-        int range = 3;
-        data.setOrigin(new HashSet<>(gameMap.getNeighbor(range)));
+        data.setOrigin(new HashSet<>(gameMap.getNeighbor(color)));
 
         data.getOrigin().forEach(point -> {
             for (int i = 0; i < 4; i++) {

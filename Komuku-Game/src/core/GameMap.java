@@ -2,6 +2,7 @@ package core;
 
 import entity.Point;
 import enumeration.Color;
+import helper.MapDriver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,42 +98,52 @@ public class GameMap {
         return (direct + 4) % 8;
     }
 
-    List<Point> getNeighbor(int range) {
+    List<Point> getNeighbor(Color color) {
+        int range = 2;
         List<Point> result = new ArrayList<>();
-        boolean[][] signal = new boolean[Config.size][Config.size];
-        boolean[][][] flag = new boolean[Config.size][Config.size][range + 1];
+        int[][] signal = new int[Config.size][Config.size];
+        int[][] signalCurrentColorTwo = new int[Config.size][Config.size];
+        int[][] signalOtherColorTwo = new int[Config.size][Config.size];
         for (int i = 0; i < Config.size; i++)
             for (int j = 0; j < Config.size; j++) {
-                if (getColor(i, j) != Color.NULL) {
-                    findNeighbor(new Point(i, j), range, signal, flag);
+                Color pointColor = getColor(i, j);
+                if (pointColor != Color.NULL) {
+                    int left = i - range >= 0 ? i - range : 0;
+                    int right = i + range < Config.size - 1 ? i + range : Config.size - 1;
+                    int top = j - range >= 0 ? j - range : 0;
+                    int button = j + range < Config.size - 1 ? j + range : Config.size - 1;
+                    for (int x = left; x <= right; x++)
+                        for (int y = top; y <= button; y++) {
+                            if (getColor(x, y) == Color.NULL) {
+                                if (Math.max(Math.abs(x - i), Math.abs(y - j)) == 1) {
+                                    signal[x][y]++;
+                                }
+                                if (Math.max(Math.abs(x - i), Math.abs(y - j)) == 2) {
+                                    if (pointColor == color) {
+                                        signalCurrentColorTwo[x][y]++;
+                                    }
+                                    if (pointColor == color.getOtherColor()) {
+                                        signalOtherColorTwo[x][y]++;
+                                    }
+                                }
+                            }
+                        }
                 }
             }
-
         for (int i = 0; i < Config.size; i++)
             for (int j = 0; j < Config.size; j++) {
-                if (getColor(i, j) == Color.NULL && signal[i][j]) {
-                    Point point = new Point(i, j);
-                    result.add(point);
+                if (signal[i][j] > 0) {
+                    result.add(new Point(i, j));
+                    continue;
+                }
+                if (signalCurrentColorTwo[i][j] > 0) {
+                    result.add(new Point(i, j));
+                    continue;
+                }
+                if (signalOtherColorTwo[i][j] > 1) {
+                    result.add(new Point(i, j));
                 }
             }
         return result;
-    }
-
-    private void findNeighbor(Point point, int step, boolean[][] signal, boolean[][][] flag) {
-        if (step == 0) {
-            return;
-        }
-        if (flag[point.getX()][point.getY()][step]) {
-            return;
-        }
-        signal[point.getX()][point.getY()] = true;
-        flag[point.getX()][point.getY()][step] = true;
-        for (int i = 0; i < 8; i++) {
-            Point fresh = getRelatePoint(point, i, 1);
-            if (reachable(fresh))
-                if (getColor(fresh) == Color.NULL) {
-                    findNeighbor(fresh, step - 1, signal, flag);
-                }
-        }
     }
 }
