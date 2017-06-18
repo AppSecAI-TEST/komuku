@@ -8,6 +8,7 @@ import helper.MapDriver;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 class LevelProcessor {
 
@@ -31,14 +32,14 @@ class LevelProcessor {
         return null;
     }
 
-    static List<Point> getExpandPoints(GameMap gameMap, Color color) {
+    static List<Point> getExpandPoints(GameMap gameMap, Color color, int level) {
         AnalyzedData data = gameMap.getAnalyzedPoints(color);
-        List<Point> result = selectSet(data);
+        List<Point> result = selectSet(data, level);
 
         List<Integer> score = new ArrayList<>();
         result.forEach(point -> score.add(getScore(gameMap, point)));
 
-        if (result.isEmpty()) {
+        if (result.isEmpty() && level > Config.searchDeep.getValue() - Config.fullDeep) {
             result.add(new Point(7, 7));
             return result;
         }
@@ -54,7 +55,7 @@ class LevelProcessor {
         return result;
     }
 
-    private static List<Point> selectSet(AnalyzedData data) {
+    private static List<Point> selectSet(AnalyzedData data, int level) {
         //如果能连5，则连5
         if (!data.getFiveAttack().isEmpty()) {
             return new ArrayList<>(data.getFiveAttack());
@@ -69,7 +70,14 @@ class LevelProcessor {
                 addAll(data.getThreeDefence());
             }};
         }
-        return new ArrayList<>(data.getOrigin());
+        if (level > Config.searchDeep.getValue() - Config.fullDeep) {
+            return new ArrayList<>(data.getOrigin());
+        } else {
+            List<Point> points = new ArrayList<>();
+            points.addAll(data.getThreeOpenAttack());
+            points.addAll(data.getFourAttack());
+            return new ArrayList<>(new HashSet<>(points));
+        }
     }
 
     private static int getScore(GameMap gameMap, Point point) {

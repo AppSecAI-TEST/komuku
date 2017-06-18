@@ -33,7 +33,7 @@ public class Game {
             return null;
         }
         //只有一个扩展点的情形直接返回
-        List<Point> points = LevelProcessor.getExpandPoints(gameMap, color);
+        List<Point> points = LevelProcessor.getExpandPoints(gameMap, color, Config.searchDeep.getValue());
         if (points.size() == 1) {
             return points.get(0);
         }
@@ -66,7 +66,7 @@ public class Game {
         //计算扩展节点
         List<Point> points;
 
-        points = LevelProcessor.getExpandPoints(gameMap, color);
+        points = LevelProcessor.getExpandPoints(gameMap, color, level);
 
         if (points == null || points.isEmpty()) {
             return getScore();
