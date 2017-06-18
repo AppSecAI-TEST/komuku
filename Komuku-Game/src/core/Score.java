@@ -20,6 +20,13 @@ class Score {
         for (int i = 0; i < Config.size; i++)
             for (int j = 0; j < Config.size; j++) {
                 Point point = new Point(i, j);
+                int fiveScore = scoreFive.getScore(gameMap, point, color);
+                if (fiveScore > 0) {
+                    return Integer.MAX_VALUE;
+                }
+                if (fiveScore < 0) {
+                    return Integer.MIN_VALUE;
+                }
                 value += scoreOne.getScore(gameMap, point, color);
                 value += scoreMultiple.getScore(gameMap, point, color);
                 value += scoreFive.getScore(gameMap, point, color);

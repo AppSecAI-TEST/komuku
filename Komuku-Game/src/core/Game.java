@@ -3,6 +3,7 @@ package core;
 import entity.CountData;
 import entity.Point;
 import enumeration.Color;
+import enumeration.Deep;
 
 import java.util.List;
 
@@ -30,6 +31,11 @@ public class Game {
         aiColor = color;
         if (LevelProcessor.win(gameMap) != null) {
             return null;
+        }
+        //只有一个扩展点的情形直接返回
+        List<Point> points = LevelProcessor.getExpandPoints(gameMap, color);
+        if (points.size() == 1) {
+            return points.get(0);
         }
         dfsScore(Config.searchDeep.getValue(), color, Integer.MAX_VALUE, 0);
         cacheMap.clear();
@@ -60,7 +66,7 @@ public class Game {
         //计算扩展节点
         List<Point> points;
 
-        points = LevelProcessor.getExpandPoints(gameMap, color, level);
+        points = LevelProcessor.getExpandPoints(gameMap, color);
 
         if (points == null || points.isEmpty()) {
             return getScore();
@@ -88,6 +94,11 @@ public class Game {
                 }
                 if (value > extreme) {
                     extreme = value;
+                    //如果能赢了，则直接剪掉后面的情形
+                    if (extreme == Integer.MAX_VALUE) {
+                        gameMap.setColor(point, Color.NULL);
+                        return extreme;
+                    }
                 }
             }
             if (color != aiColor) {
@@ -98,6 +109,11 @@ public class Game {
                 }
                 if (value < extreme) {
                     extreme = value;
+                    //如果已经输了，则直接剪掉后面的情形
+                    if (extreme == Integer.MIN_VALUE) {
+                        gameMap.setColor(point, Color.NULL);
+                        return extreme;
+                    }
                 }
             }
             gameMap.setColor(point, Color.NULL);

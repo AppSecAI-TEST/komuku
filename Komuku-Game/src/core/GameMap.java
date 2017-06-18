@@ -1,10 +1,12 @@
 package core;
 
+import entity.AnalyzedData;
 import entity.Point;
 import enumeration.Color;
 import helper.MapDriver;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class GameMap {
@@ -146,4 +148,112 @@ public class GameMap {
             }
         return result;
     }
+
+    public AnalyzedData getAnalyzedPoints(Color color) {
+        AnalyzedData data = new AnalyzedData();
+
+        data.setOrigin(new HashSet<>(getNeighbor(color)));
+
+        data.getOrigin().forEach(point -> {
+            for (int i = 0; i < 4; i++) {
+                int headCurrent = getMaxSequenceWithoutCurrent(color, point, i);
+                int tailCurrent = getMaxSequenceWithoutCurrent(color, point, getOtherDirect(i));
+                boolean headLive = getColor(getRelatePoint(point, i, headCurrent + 1)) == Color.NULL;
+                boolean tailLive = getColor(getRelatePoint(point, getOtherDirect(i), tailCurrent + 1)) == Color.NULL;
+
+                //连5
+                if (headCurrent + tailCurrent >= 4) {
+                    data.getFiveAttack().add(point);
+                }
+                //连4
+                if (headCurrent + tailCurrent == 3) {
+                    if (headLive || tailLive) {
+                        data.getFourAttack().add(point);
+                    }
+                }
+                //断连4
+                for (int k = -4; k <= 0; k++) {
+                    if (!reachable(getRelatePoint(point, i, k)) ||
+                            !reachable(getRelatePoint(point, i, k + 4))) {
+                        continue;
+                    }
+                    int count = 0;
+                    for (int t = k; t <= k + 4; t++) {
+                        Point p = getRelatePoint(point, i, t);
+                        if (getColor(p) == color) {
+                            count++;
+                        }
+                        if (getColor(p) == color.getOtherColor()) {
+                            count = Integer.MIN_VALUE;
+                            break;
+                        }
+                    }
+                    if (count == 3) {
+                        data.getFourAttack().add(point);
+                    }
+                }
+
+                //连3
+                if (headCurrent + tailCurrent == 2) {
+                    if (headLive && tailLive) {
+                        data.getThreeOpenAttack().add(point);
+                    }
+                }
+                //断连3
+                for (int k = -4; k <= -1; k++) {
+                    if (!reachable(getRelatePoint(point, i, k)) ||
+                            !reachable(getRelatePoint(point, i, k + 5))) {
+                        continue;
+                    }
+                    if (getColor(getRelatePoint(point, i, k)) != Color.NULL ||
+                            getColor(getRelatePoint(point, i, k + 5)) != Color.NULL) {
+                        continue;
+                    }
+                    int count = 0;
+                    for (int t = k + 1; t <= k + 4; t++) {
+                        Point p = getRelatePoint(point, i, t);
+                        if (getColor(p) == color) {
+                            count++;
+                        }
+                        if (getColor(p) == color.getOtherColor()) {
+                            count = Integer.MIN_VALUE;
+                            break;
+                        }
+                    }
+                    if (count == 2) {
+                        data.getThreeOpenAttack().add(point);
+                    }
+                }
+            }
+            for (int i = 0; i < 4; i++) {
+                int headOther = getMaxSequenceWithoutCurrent(color.getOtherColor(), point, i);
+                int tailOther = getMaxSequenceWithoutCurrent(color.getOtherColor(), point, getOtherDirect(i));
+                boolean headOtherLive = getColor(getRelatePoint(point, i, headOther + 1)) == Color.NULL;
+                boolean tailOtherLive = getColor(getRelatePoint(point, getOtherDirect(i), tailOther + 1)) == Color.NULL;
+
+                //防4连和断4连
+                if (headOther + tailOther >= 4) {
+                    data.getFourDefence().add(point);
+                }
+
+                //防断3连
+                if (headOther > 0 && tailOther > 0 && headOther + tailOther == 3) {
+                    if (headOtherLive && tailOtherLive) {
+                        data.getThreeDefence().add(point);
+                        data.getThreeDefence().add(getRelatePoint(point, i, headOther + 1));
+                        data.getThreeDefence().add(getRelatePoint(point, i, -(tailOther + 1)));
+                    }
+                }
+                //防3连
+                if (headOther == 3 && tailOther == 0 && headOtherLive) {
+                    data.getThreeDefence().add(point);
+                }
+                if (tailOther == 3 && headOther == 0 && tailOtherLive) {
+                    data.getThreeDefence().add(point);
+                }
+            }
+        });
+        return data;
+    }
+
 }

@@ -31,121 +31,14 @@ class LevelProcessor {
         return null;
     }
 
-    static AnalyzedData getAnalyzedPoints(GameMap gameMap, Color color) {
-        AnalyzedData data = new AnalyzedData();
-
-        data.setOrigin(new HashSet<>(gameMap.getNeighbor(color)));
-
-        data.getOrigin().forEach(point -> {
-            for (int i = 0; i < 4; i++) {
-                int headCurrent = gameMap.getMaxSequenceWithoutCurrent(color, point, i);
-                int tailCurrent = gameMap.getMaxSequenceWithoutCurrent(color, point, gameMap.getOtherDirect(i));
-                boolean headLive = gameMap.getColor(gameMap.getRelatePoint(point, i, headCurrent + 1)) == Color.NULL;
-                boolean tailLive = gameMap.getColor(gameMap.getRelatePoint(point, gameMap.getOtherDirect(i), tailCurrent + 1)) == Color.NULL;
-
-                //连5
-                if (headCurrent + tailCurrent >= 4) {
-                    data.getFiveAttack().add(point);
-                }
-                //连4
-                if (headCurrent + tailCurrent == 3) {
-                    if (headLive || tailLive) {
-                        data.getFourAttack().add(point);
-                    }
-                }
-                //断连4
-                for (int k = -4; k <= 0; k++) {
-                    if (!gameMap.reachable(gameMap.getRelatePoint(point, i, k)) ||
-                            !gameMap.reachable(gameMap.getRelatePoint(point, i, k + 4))) {
-                        continue;
-                    }
-                    int count = 0;
-                    for (int t = k; t <= k + 4; t++) {
-                        Point p = gameMap.getRelatePoint(point, i, t);
-                        if (gameMap.getColor(p) == color) {
-                            count++;
-                        }
-                        if (gameMap.getColor(p) == color.getOtherColor()) {
-                            count = Integer.MIN_VALUE;
-                            break;
-                        }
-                    }
-                    if (count == 3) {
-                        data.getFourAttack().add(point);
-                    }
-                }
-
-                //连3
-                if (headCurrent + tailCurrent == 2) {
-                    if (headLive && tailLive) {
-                        data.getThreeOpenAttack().add(point);
-                    }
-                }
-                //断连3
-                for (int k = -4; k <= -1; k++) {
-                    if (!gameMap.reachable(gameMap.getRelatePoint(point, i, k)) ||
-                            !gameMap.reachable(gameMap.getRelatePoint(point, i, k + 5))) {
-                        continue;
-                    }
-                    if (gameMap.getColor(gameMap.getRelatePoint(point, i, k)) != Color.NULL ||
-                            gameMap.getColor(gameMap.getRelatePoint(point, i, k + 5)) != Color.NULL) {
-                        continue;
-                    }
-                    int count = 0;
-                    for (int t = k + 1; t <= k + 4; t++) {
-                        Point p = gameMap.getRelatePoint(point, i, t);
-                        if (gameMap.getColor(p) == color) {
-                            count++;
-                        }
-                        if (gameMap.getColor(p) == color.getOtherColor()) {
-                            count = Integer.MIN_VALUE;
-                            break;
-                        }
-                    }
-                    if (count == 2) {
-                        data.getThreeOpenAttack().add(point);
-                    }
-                }
-            }
-            for (int i = 0; i < 4; i++) {
-                int headOther = gameMap.getMaxSequenceWithoutCurrent(color.getOtherColor(), point, i);
-                int tailOther = gameMap.getMaxSequenceWithoutCurrent(color.getOtherColor(), point, gameMap.getOtherDirect(i));
-                boolean headOtherLive = gameMap.getColor(gameMap.getRelatePoint(point, i, headOther + 1)) == Color.NULL;
-                boolean tailOtherLive = gameMap.getColor(gameMap.getRelatePoint(point, gameMap.getOtherDirect(i), tailOther + 1)) == Color.NULL;
-
-                //防4连和断4连
-                if (headOther + tailOther >= 4) {
-                    data.getFourDefence().add(point);
-                }
-
-                //防断3连
-                if (headOther > 0 && tailOther > 0 && headOther + tailOther == 3) {
-                    if (headOtherLive && tailOtherLive) {
-                        data.getThreeDefence().add(point);
-                        data.getThreeDefence().add(gameMap.getRelatePoint(point, i, headOther + 1));
-                        data.getThreeDefence().add(gameMap.getRelatePoint(point, i, -(tailOther + 1)));
-                    }
-                }
-                //防3连
-                if (headOther == 3 && tailOther == 0 && headOtherLive) {
-                    data.getThreeDefence().add(point);
-                }
-                if (tailOther == 3 && headOther == 0 && tailOtherLive) {
-                    data.getThreeDefence().add(point);
-                }
-            }
-        });
-        return data;
-    }
-
-    static List<Point> getExpandPoints(GameMap gameMap, Color color, int level) {
-        AnalyzedData data = getAnalyzedPoints(gameMap, color);
-        List<Point> result = selectSet(data, level);
+    static List<Point> getExpandPoints(GameMap gameMap, Color color) {
+        AnalyzedData data = gameMap.getAnalyzedPoints(color);
+        List<Point> result = selectSet(data);
 
         List<Integer> score = new ArrayList<>();
         result.forEach(point -> score.add(getScore(gameMap, point)));
 
-        if (result.isEmpty() && level > Config.searchDeep.getValue() - Config.fullDeep) {
+        if (result.isEmpty()) {
             result.add(new Point(7, 7));
             return result;
         }
@@ -161,8 +54,7 @@ class LevelProcessor {
         return result;
     }
 
-    private static List<Point> selectSet(AnalyzedData data, int level) {
-        List<Point> result;
+    private static List<Point> selectSet(AnalyzedData data) {
         //如果能连5，则连5
         if (!data.getFiveAttack().isEmpty()) {
             return new ArrayList<>(data.getFiveAttack());
@@ -177,11 +69,7 @@ class LevelProcessor {
                 addAll(data.getThreeDefence());
             }};
         }
-        if (level > Config.searchDeep.getValue() - Config.fullDeep) {
-            return new ArrayList<>(data.getOrigin());
-        } else {
-            return new ArrayList<>();
-        }
+        return new ArrayList<>(data.getOrigin());
     }
 
     private static int getScore(GameMap gameMap, Point point) {
@@ -235,7 +123,7 @@ class LevelProcessor {
         Color[][] map = MapDriver.readMap();
         GameMap gameMap = new GameMap(map);
 
-        AnalyzedData points = getAnalyzedPoints(gameMap, Color.BLACK);
+        AnalyzedData points = gameMap.getAnalyzedPoints(Color.BLACK);
         System.out.println(points.getFiveAttack());
         System.out.println(points.getFourAttack());
         System.out.println(points.getThreeOpenAttack());
