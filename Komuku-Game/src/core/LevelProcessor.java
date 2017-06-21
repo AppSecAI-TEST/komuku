@@ -42,26 +42,19 @@ class LevelProcessor {
             return result;
         }
 
-        if (result.size() == data.getOrigin().size()) {
-            int left = result.size() - data.getNotKey().size();
-            int right = result.size();
-
+        if (!result.isEmpty() && result.size() == data.getOrigin().size()) {
+            //分段排序
+            int signalFourAttack = data.getFourAttack().size();
+            int signalThreeAttack = signalFourAttack + data.getThreeOpenAttack().size();
 
             List<Integer> score = new ArrayList<>(result.size());
-            for (int i = 0; i < left; i++) {
-                score.add(0);
-            }
-            for (int i = left; i < right; i++) {
-                try {
-                    score.add(getScore(gameMap, result.get(i)));
-                } catch (RuntimeException e) {
-                    System.out.println("look");
-                }
-            }
+            result.forEach(point ->
+                    score.add(getScore(gameMap, point))
+            );
 
-            if (!result.isEmpty()) {
-                sort(left, right, result, score);
-            }
+            sort(0, signalFourAttack, result, score);
+            sort(signalFourAttack, signalThreeAttack, result, score);
+            sort(signalThreeAttack, result.size(), result, score);
         }
 
         if (debug) {
