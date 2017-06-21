@@ -8,6 +8,7 @@ import helper.MapDriver;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class GameMap {
 
@@ -253,6 +254,14 @@ public class GameMap {
                 }
             }
         });
+
+        Set<Point> otherPoints = data.getOrigin();
+        otherPoints.removeAll(data.getFiveAttack());
+        otherPoints.removeAll(data.getFourAttack());
+        otherPoints.removeAll(data.getFourDefence());
+        otherPoints.removeAll(data.getThreeDefence());
+        otherPoints.removeAll(data.getThreeOpenAttack());
+        data.setNotKey(otherPoints);
         return data;
     }
 

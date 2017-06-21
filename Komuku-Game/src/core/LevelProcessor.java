@@ -8,6 +8,7 @@ import helper.MapDriver;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 class LevelProcessor {
@@ -36,22 +37,36 @@ class LevelProcessor {
         AnalyzedData data = gameMap.getAnalyzedPoints(color);
         List<Point> result = selectSet(data, level);
 
-        List<Integer> score = new ArrayList<>();
-        result.forEach(point -> score.add(getScore(gameMap, point)));
-
         if (result.isEmpty() && level > Config.searchDeep.getValue() - Config.fullDeep) {
             result.add(new Point(7, 7));
             return result;
         }
 
-        if (!result.isEmpty()) {
-            sort(0, score.size() - 1, result, score);
+        if (result.size() == data.getOrigin().size()) {
+            int left = result.size() - data.getNotKey().size();
+            int right = result.size();
+
+
+            List<Integer> score = new ArrayList<>(result.size());
+            for (int i = 0; i < left; i++) {
+                score.add(0);
+            }
+            for (int i = left; i < right; i++) {
+                try {
+                    score.add(getScore(gameMap, result.get(i)));
+                } catch (RuntimeException e) {
+                    System.out.println("look");
+                }
+            }
+
+            if (!result.isEmpty()) {
+                sort(left, right, result, score);
+            }
         }
 
         if (debug) {
             printResult(result);
         }
-
         return result;
     }
 
@@ -71,7 +86,14 @@ class LevelProcessor {
             }};
         }
         if (level > Config.searchDeep.getValue() - Config.fullDeep) {
-            return new ArrayList<>(data.getOrigin());
+            List<Point> result = new ArrayList<>();
+            result.addAll(data.getFiveAttack());
+            result.addAll(data.getFourAttack());
+            result.addAll(data.getFourDefence());
+            result.addAll(data.getThreeDefence());
+            result.addAll(data.getThreeOpenAttack());
+            result.addAll(data.getNotKey());
+            return result;
         } else {
             List<Point> points = new ArrayList<>();
             points.addAll(data.getThreeOpenAttack());
@@ -99,25 +121,16 @@ class LevelProcessor {
     }
 
     private static void sort(int left, int right, List<Point> points, List<Integer> scores) {
-        int x = left;
-        int y = right;
-        int mid = scores.get((x + y) / 2);
-        while (x < y) {
-            while (scores.get(x) > mid) x++;
-            while (scores.get(y) < mid) y--;
-            if (x <= y) {
-                int temp = scores.get(x);
-                scores.set(x, scores.get(y));
-                scores.set(y, temp);
-                Point point = points.get(x);
-                points.set(x, points.get(y));
-                points.set(y, point);
-                x++;
-                y--;
-            }
-        }
-        if (x < right) sort(x, right, points, scores);
-        if (left < y) sort(left, y, points, scores);
+        for (int x = left; x < right; x++)
+            for (int y = x + 1; y < right; y++)
+                if (scores.get(x) <= scores.get(y)) {
+                    int temp = scores.get(x);
+                    scores.set(x, scores.get(y));
+                    scores.set(y, temp);
+                    Point point = points.get(x);
+                    points.set(x, points.get(y));
+                    points.set(y, point);
+                }
     }
 
     private static void printResult(List<Point> result) {

@@ -17,6 +17,8 @@ public class AnalyzedData {
 
     private Set<Point> origin = new HashSet<>();
 
+    private Set<Point> notKey = new HashSet<>();
+
     public Set<Point> getFiveAttack() {
         return fiveAttack;
     }
@@ -63,5 +65,13 @@ public class AnalyzedData {
 
     public void setOrigin(Set<Point> origin) {
         this.origin = origin;
+    }
+
+    public Set<Point> getNotKey() {
+        return notKey;
+    }
+
+    public void setNotKey(Set<Point> notKey) {
+        this.notKey = notKey;
     }
 }
