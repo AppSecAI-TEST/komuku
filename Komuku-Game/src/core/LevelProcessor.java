@@ -80,10 +80,7 @@ class LevelProcessor {
         }
         if (level > Config.searchDeep.getValue() - Config.fullDeep) {
             List<Point> result = new ArrayList<>();
-            result.addAll(data.getFiveAttack());
             result.addAll(data.getFourAttack());
-            result.addAll(data.getFourDefence());
-            result.addAll(data.getThreeDefence());
             result.addAll(data.getThreeOpenAttack());
             result.addAll(data.getNotKey());
             return result;
