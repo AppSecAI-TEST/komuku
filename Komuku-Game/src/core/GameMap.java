@@ -29,6 +29,14 @@ public class GameMap {
         return true;
     }
 
+    public boolean reachable(int x, int y) {
+        if (x < 0 || x >= map.length)
+            return false;
+        if (y < 0 || y >= map.length)
+            return false;
+        return true;
+    }
+
     public Color[][] getMap() {
         return map;
     }
@@ -122,15 +130,36 @@ public class GameMap {
                                     signal[x][y]++;
                                 }
                                 if (Math.max(Math.abs(x - i), Math.abs(y - j)) == 2) {
-                                    if (pointColor == color) {
-                                        signalCurrentColorTwo[x][y]++;
-                                    }
-                                    if (pointColor == color.getOtherColor()) {
-                                        signalOtherColorTwo[x][y]++;
+                                    if (Math.abs(x - i) != 1 && Math.abs(y - j) != 1) {
+                                        //只计算2连隔空下
+                                        int tx = i, ty = j;
+                                        if (x - i > 0) {
+                                            tx = i - 1;
+                                        }
+                                        if (x - i < 0) {
+                                            tx = i + 1;
+                                        }
+                                        if (y - j > 0) {
+                                            ty = j - 1;
+                                        }
+                                        if (y - j < 0) {
+                                            ty = j + 1;
+                                        }
+                                        if (reachable(tx, ty)) {
+                                            if (getColor(tx, ty) == pointColor) {
+                                                if (pointColor == color) {
+                                                    signalCurrentColorTwo[x][y]++;
+                                                }
+                                                if (pointColor == color.getOtherColor()) {
+                                                    signalOtherColorTwo[x][y]++;
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
+
                 }
             }
         for (int i = 0; i < Config.size; i++)
@@ -265,4 +294,9 @@ public class GameMap {
         return data;
     }
 
+    public static void main(String[] args) {
+        Color[][] map = MapDriver.readMap();
+        GameMap gameMap = new GameMap(map);
+        System.out.println(gameMap.getNeighbor(Color.BLACK));
+    }
 }

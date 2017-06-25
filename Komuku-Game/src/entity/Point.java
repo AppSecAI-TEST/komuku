@@ -1,6 +1,6 @@
 package entity;
 
-public class Point {
+public class Point implements Cloneable {
 
     int x;
 
@@ -17,6 +17,24 @@ public class Point {
 
     public int getY() {
         return y;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    @Override
+    public Point clone() {
+        try {
+            return (Point) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

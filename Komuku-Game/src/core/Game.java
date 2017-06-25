@@ -55,6 +55,21 @@ public class Game {
     }
 
     private int dfsScore(int level, Color color, Integer parentMin, Integer parentMax) {
+        //斩杀剪枝
+        if (level == 0) {
+            if (color == aiColor) {
+                if (ComboProcessor.canKill(gameMap, color)) {
+                    return Integer.MAX_VALUE;
+                }
+            }
+        }
+        if (level == Config.searchDeep.getValue() - Config.fullDeep + 1) {
+            if (color != aiColor) {
+                if (ComboProcessor.canKill(gameMap, color)) {
+                    return Integer.MIN_VALUE;
+                }
+            }
+        }
         //叶子分数计算
         if (level == 0) {
             return getScore();
