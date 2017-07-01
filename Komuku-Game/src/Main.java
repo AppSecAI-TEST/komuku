@@ -22,7 +22,7 @@ public class Main {
 
     private static boolean debug = true;
 
-    private static Color aiColor = Color.BLACK;
+    private static Color aiColor = Color.WHITE;
 
     public static void main(String[] args) {
         System.out.println("正在初始化数据...");

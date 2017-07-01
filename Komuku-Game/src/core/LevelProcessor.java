@@ -52,10 +52,6 @@ class LevelProcessor {
                     score.add(getScore(gameMap, point))
             );
 
-            if(signalThreeAttack == 16 && score.size() == 15){
-                MapDriver.printToConsole(gameMap);
-                System.out.println("look");
-            }
             sort(0, signalFourAttack, result, score);
             sort(signalFourAttack, signalThreeAttack, result, score);
             sort(signalThreeAttack, result.size(), result, score);
@@ -117,9 +113,6 @@ class LevelProcessor {
     private static void sort(int left, int right, List<Point> points, List<Integer> scores) {
         for (int x = left; x < right; x++)
             for (int y = x + 1; y < right; y++) {
-                if (y == 15 && scores.size() == 15) {
-                    System.out.println("look");
-                }
                 if (scores.get(x) <= scores.get(y)) {
                     int temp = scores.get(x);
                     scores.set(x, scores.get(y));

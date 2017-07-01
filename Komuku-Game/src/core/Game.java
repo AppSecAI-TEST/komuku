@@ -4,6 +4,7 @@ import entity.CountData;
 import entity.Point;
 import enumeration.Color;
 import enumeration.Deep;
+import helper.MapDriver;
 
 import java.util.List;
 
@@ -55,6 +56,16 @@ public class Game {
     }
 
     private int dfsScore(int level, Color color, Integer parentMin, Integer parentMax) {
+        //输赢判定
+        Color winResult = LevelProcessor.win(gameMap);
+        if (winResult != null) {
+            if (winResult == aiColor) {
+                return Integer.MAX_VALUE;
+            }
+            if (winResult == aiColor.getOtherColor()) {
+                return Integer.MIN_VALUE;
+            }
+        }
         //斩杀剪枝
         if (level == 0) {
             if (color == aiColor) {
@@ -66,16 +77,13 @@ public class Game {
         if (level == Config.searchDeep.getValue() - Config.fullDeep + 1) {
             if (color != aiColor) {
                 if (ComboProcessor.canKill(gameMap, color)) {
+                    MapDriver.printToConsole(gameMap);
                     return Integer.MIN_VALUE;
                 }
             }
         }
         //叶子分数计算
         if (level == 0) {
-            return getScore();
-        }
-        //输赢判定
-        if (LevelProcessor.win(gameMap) != null) {
             return getScore();
         }
         //计算扩展节点
