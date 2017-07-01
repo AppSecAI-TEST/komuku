@@ -12,7 +12,7 @@ public class Config {
 
     public static Deep searchDeep = Deep.SIX;
 
-    public static int comboDeep = 5;
+    public static int comboDeep = 3;
 
     public final static int fullDeep = 4;
 

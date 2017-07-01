@@ -283,6 +283,8 @@ public class GameMap {
                 }
             }
         });
+        //去除重叠的情况
+        data.getThreeOpenAttack().removeAll(data.getFourAttack());
 
         Set<Point> otherPoints = data.getOrigin();
         otherPoints.removeAll(data.getFiveAttack());
