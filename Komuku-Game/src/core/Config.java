@@ -10,9 +10,9 @@ public class Config {
 
     public final static int size = 15;
 
-    public static Deep searchDeep = Deep.SIX;
+    public Deep searchDeep = Deep.SIX;
 
-    public static int comboDeep = 3;
+    public int comboDeep = 3;
 
     public final static int fullDeep = 4;
 

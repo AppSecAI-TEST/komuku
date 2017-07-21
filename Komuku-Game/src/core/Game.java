@@ -22,8 +22,11 @@ public class Game {
 
     private Color aiColor;
 
-    public void init(Color[][] map) {
+    protected Config config;
+
+    public void init(Color[][] map, Config config) {
         gameMap = new GameMap(map);
+        this.config = config;
     }
 
     public Result search(Color color) {
@@ -34,11 +37,11 @@ public class Game {
             return null;
         }
         //只有一个扩展点的情形直接返回
-        List<Point> points = LevelProcessor.getExpandPoints(gameMap, color, Config.searchDeep.getValue());
+        List<Point> points = LevelProcessor.getExpandPoints(gameMap, color, config.searchDeep.getValue(), config.searchDeep.getValue());
         if (points.size() == 1) {
             return result;
         }
-        dfsScore(Config.searchDeep.getValue(), color, Integer.MAX_VALUE, 0);
+        dfsScore(config.searchDeep.getValue(), color, Integer.MAX_VALUE, 0);
         cacheMap.clear();
         return result;
     }
@@ -69,15 +72,15 @@ public class Game {
         //斩杀剪枝
         if (level == 0) {
             if (color == aiColor) {
-                if (ComboProcessor.canKill(gameMap, color, Config.comboDeep)) {
+                if (ComboProcessor.canKill(gameMap, color, config.comboDeep, config.comboDeep)) {
                     return Integer.MAX_VALUE;
                 }
             }
         }
-        if (level == Config.searchDeep.getValue() - Config.fullDeep + 1) {
+        if (level == config.searchDeep.getValue() - Config.fullDeep + 1) {
             //谨慎处理败北的情形
             if (color != aiColor) {
-                if (ComboProcessor.canKill(gameMap, color, Config.comboDeep + Config.searchDeep.getValue() - Config.fullDeep)) {
+                if (ComboProcessor.canKill(gameMap, color, config.comboDeep + config.searchDeep.getValue() - Config.fullDeep, config.comboDeep)) {
                     return Integer.MIN_VALUE;
                 }
             }
@@ -89,13 +92,13 @@ public class Game {
         //计算扩展节点
         List<Point> points;
 
-        points = LevelProcessor.getExpandPoints(gameMap, color, level);
+        points = LevelProcessor.getExpandPoints(gameMap, color, level, config.searchDeep.getValue());
 
         if (points == null || points.isEmpty()) {
             return getScore();
         }
         //进度计算
-        if (level == Config.searchDeep.getValue()) {
+        if (level == config.searchDeep.getValue()) {
             counter.setAllStep(points.size());
         }
         //遍历扩展节点
@@ -108,7 +111,7 @@ public class Game {
                     gameMap.setColor(point, Color.NULL);
                     return value;
                 }
-                if (level == Config.searchDeep.getValue()) {
+                if (level == config.searchDeep.getValue()) {
                     if (value >= extreme) {
                         result.add(point, value);
                     }

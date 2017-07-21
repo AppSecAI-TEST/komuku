@@ -33,11 +33,11 @@ class LevelProcessor {
         return null;
     }
 
-    static List<Point> getExpandPoints(GameMap gameMap, Color color, int level) {
+    static List<Point> getExpandPoints(GameMap gameMap, Color color, int level, int searchDeep) {
         AnalyzedData data = gameMap.getAnalyzedPoints(color);
-        List<Point> result = selectSet(data, level);
+        List<Point> result = selectSet(data, level, searchDeep);
 
-        if (result.isEmpty() && level > Config.searchDeep.getValue() - Config.fullDeep) {
+        if (result.isEmpty() && level > searchDeep - Config.fullDeep) {
             result.add(new Point(7, 7));
             return result;
         }
@@ -63,7 +63,7 @@ class LevelProcessor {
         return result;
     }
 
-    private static List<Point> selectSet(AnalyzedData data, int level) {
+    private static List<Point> selectSet(AnalyzedData data, int level, int searchDeep) {
         //如果能连5，则连5
         if (!data.getFiveAttack().isEmpty()) {
             return new ArrayList<>(data.getFiveAttack());
@@ -78,7 +78,7 @@ class LevelProcessor {
                 addAll(data.getThreeDefence());
             }};
         }
-        if (level > Config.searchDeep.getValue() - Config.fullDeep) {
+        if (level > searchDeep - Config.fullDeep) {
             List<Point> result = new ArrayList<>();
             result.addAll(data.getFourAttack());
             result.addAll(data.getThreeOpenAttack());
