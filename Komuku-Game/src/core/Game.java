@@ -69,15 +69,15 @@ public class Game {
         //斩杀剪枝
         if (level == 0) {
             if (color == aiColor) {
-                if (ComboProcessor.canKill(gameMap, color)) {
+                if (ComboProcessor.canKill(gameMap, color, Config.comboDeep)) {
                     return Integer.MAX_VALUE;
                 }
             }
         }
         if (level == Config.searchDeep.getValue() - Config.fullDeep + 1) {
+            //谨慎处理败北的情形
             if (color != aiColor) {
-                if (ComboProcessor.canKill(gameMap, color)) {
-                    MapDriver.printToConsole(gameMap);
+                if (ComboProcessor.canKill(gameMap, color, Config.comboDeep + Config.searchDeep.getValue() - Config.fullDeep)) {
                     return Integer.MIN_VALUE;
                 }
             }

@@ -12,10 +12,10 @@ public class ComboProcessor {
 
     private static boolean debug = false;
 
-    static boolean canKill(GameMap gameMap, Color targetColor) {
+    static boolean canKill(GameMap gameMap, Color targetColor, int deep) {
         if (Config.comboDeep == 0)
             return false;
-        boolean result = dfsKill(gameMap, targetColor, targetColor, Config.comboDeep);
+        boolean result = dfsKill(gameMap, targetColor, targetColor, deep);
         if (debug) {
             if (result) {
                 MapDriver.printToConsole(gameMap);
@@ -99,6 +99,6 @@ public class ComboProcessor {
     public static void main(String[] args) {
         Color[][] colors = MapDriver.readMap();
         GameMap gameMap = new GameMap(colors);
-        System.out.println(canKill(gameMap, Color.BLACK));
+        System.out.println(canKill(gameMap, Color.BLACK, 6));
     }
 }

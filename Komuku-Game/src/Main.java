@@ -24,6 +24,8 @@ public class Main {
 
     private static Color aiColor = Color.WHITE;
 
+    private static boolean autoRun = true;
+
     public static void main(String[] args) {
         System.out.println("正在初始化数据...");
         game.init(map);
@@ -39,6 +41,14 @@ public class Main {
         result = game.search(aiColor);
         map[result.getX()][result.getY()] = aiColor;
         MapDriver.printMap(map);
+        if (autoRun) {
+            loop();
+        }
+    }
+
+    private static void loop() {
+        aiColor = aiColor.getOtherColor();
+        main(null);
     }
 
     private static void listen() {
