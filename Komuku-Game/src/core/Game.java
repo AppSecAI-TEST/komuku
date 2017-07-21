@@ -26,7 +26,7 @@ public class Game {
         gameMap = new GameMap(map);
     }
 
-    public Point search(Color color) {
+    public Result search(Color color) {
         result.reset();
         counter.clear();
         aiColor = color;
@@ -36,11 +36,11 @@ public class Game {
         //只有一个扩展点的情形直接返回
         List<Point> points = LevelProcessor.getExpandPoints(gameMap, color, Config.searchDeep.getValue());
         if (points.size() == 1) {
-            return points.get(0);
+            return result;
         }
         dfsScore(Config.searchDeep.getValue(), color, Integer.MAX_VALUE, 0);
         cacheMap.clear();
-        return result.getPoint();
+        return result;
     }
 
     public Color win() {

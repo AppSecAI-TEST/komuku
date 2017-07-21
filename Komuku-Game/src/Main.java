@@ -38,7 +38,7 @@ public class Main {
         if (!debug) {
             listen();
         }
-        result = game.search(aiColor);
+        result = game.search(aiColor).getPoint();
         map[result.getX()][result.getY()] = aiColor;
         MapDriver.printMap(map);
         if (autoRun) {
