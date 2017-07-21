@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-class Result {
+public class Result {
 
     Point point;
 
@@ -31,6 +31,10 @@ class Result {
 
     public Point getPoint() {
         return point;
+    }
+
+    public int getMaxValue() {
+        return maxValue;
     }
 
     public List<Point> getPointList() {
