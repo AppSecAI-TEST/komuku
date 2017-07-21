@@ -24,7 +24,7 @@ public class Main {
 
     private static Color aiColor = Color.WHITE;
 
-    private static boolean autoRun = true;
+    private static boolean autoRun = false;
 
     public static void main(String[] args) {
         System.out.println("正在初始化数据...");

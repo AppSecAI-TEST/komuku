@@ -39,6 +39,7 @@ public class Game {
         //只有一个扩展点的情形直接返回
         List<Point> points = LevelProcessor.getExpandPoints(gameMap, color, config.searchDeep.getValue(), config.searchDeep.getValue());
         if (points.size() == 1) {
+            result.add(points.get(0), 0);
             return result;
         }
         dfsScore(config.searchDeep.getValue(), color, Integer.MAX_VALUE, 0);
