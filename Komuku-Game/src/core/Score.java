@@ -34,4 +34,28 @@ class Score {
             }
         return value;
     }
+
+    static private int getMutipleCloseValue(GameMap gameMap, Color color, Point point) {
+        return 0;
+    }
+
+    static private int getOneValue(GameMap gameMap, Color color, Point point) {
+        return 0;
+    }
+
+    static private int getTwoValue(GameMap gameMap, Color color, Point point) {
+        return 0;
+    }
+
+    static private int getThreeValue(GameMap gameMap, Color color, Point point) {
+        return 0;
+    }
+
+    static private int getFourValue(GameMap gameMap, Color color, Point point) {
+        return 0;
+    }
+
+    static private int getFiveValue(GameMap gameMap, Color color, Point point) {
+        return 0;
+    }
 }
