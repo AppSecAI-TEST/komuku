@@ -12,9 +12,7 @@ public class ComboProcessor {
 
     private static boolean debug = false;
 
-    static boolean canKill(GameMap gameMap, Color targetColor, int deep, int comboDeep) {
-        if (comboDeep == 0)
-            return false;
+    static boolean canKill(GameMap gameMap, Color targetColor, int deep) {
         boolean result = dfsKill(gameMap, targetColor, targetColor, deep);
         if (debug) {
             if (result) {
@@ -45,6 +43,9 @@ public class ComboProcessor {
             }
             return false;
         } else {
+            if (data.getFiveAttack().size() > 0) {
+                return false;
+            }
             List<Point> points = getComboDefencePoints(gameMap, color, data);
             //如果没有能防的则结束
             if (points.size() == 0) {
@@ -65,20 +66,20 @@ public class ComboProcessor {
 
     private static List<Point> getComboAttackPoints(GameMap gameMap, Color color, AnalyzedData data) {
         //如果能连5，则连5
-        if (!data.getFiveAttack().isEmpty()) {
-            return new ArrayList<>(data.getFiveAttack());
-        }
+//        if (!data.getFiveAttack().isEmpty()) {
+//            return new ArrayList<>(data.getFiveAttack());
+//        }
         //如果有对方冲4，则防冲4
         if (!data.getFourDefence().isEmpty()) {
             return new ArrayList<>(data.getFourDefence());
         }
         //如果有对方活3，冲四
-        if (!data.getThreeDefence().isEmpty()) {
-            return new ArrayList<>(data.getFourAttack());
-        }
+//        if (!data.getThreeDefence().isEmpty()) {
+//            return new ArrayList<>(data.getFourAttack());
+//        }
         List<Point> result = new ArrayList<>();
         result.addAll(data.getFourAttack());
-        result.addAll(data.getThreeOpenAttack());
+//        result.addAll(data.getThreeOpenAttack());
         return result;
     }
 
@@ -87,18 +88,18 @@ public class ComboProcessor {
         if (!data.getFourDefence().isEmpty()) {
             return new ArrayList<>(data.getFourDefence());
         }
-        //如果有对方活3，则防活3或者冲四
-        if (!data.getThreeDefence().isEmpty()) {
-            return new ArrayList<Point>(data.getFourAttack()) {{
-                addAll(data.getThreeDefence());
-            }};
-        }
+//        //如果有对方活3，则防活3或者冲四
+//        if (!data.getThreeDefence().isEmpty()) {
+//            return new ArrayList<Point>(data.getFourAttack()) {{
+//                addAll(data.getThreeDefence());
+//            }};
+//        }
         return new ArrayList<>();
     }
 
     public static void main(String[] args) {
         Color[][] colors = MapDriver.readMap();
         GameMap gameMap = new GameMap(colors);
-        System.out.println(canKill(gameMap, Color.BLACK, 6, 4));
+        System.out.println(canKill(gameMap, Color.BLACK, 3));
     }
 }

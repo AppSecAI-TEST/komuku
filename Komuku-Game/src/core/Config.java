@@ -14,8 +14,6 @@ public class Config {
 
     public int comboDeep = 3;
 
-    public final static int fullDeep = 4;
-
     public static boolean debug = false;
 
     public static boolean scoreCacheEnable = false;

@@ -37,7 +37,7 @@ class LevelProcessor {
         AnalyzedData data = gameMap.getAnalyzedPoints(color);
         List<Point> result = selectSet(data, level, searchDeep);
 
-        if (result.isEmpty() && level > searchDeep - Config.fullDeep) {
+        if (result.isEmpty()) {
             result.add(new Point(7, 7));
             return result;
         }
@@ -78,18 +78,11 @@ class LevelProcessor {
                 addAll(data.getThreeDefence());
             }};
         }
-        if (level > searchDeep - Config.fullDeep) {
-            List<Point> result = new ArrayList<>();
-            result.addAll(data.getFourAttack());
-            result.addAll(data.getThreeOpenAttack());
-            result.addAll(data.getNotKey());
-            return result;
-        } else {
-            List<Point> points = new ArrayList<>();
-            points.addAll(data.getThreeOpenAttack());
-            points.addAll(data.getFourAttack());
-            return new ArrayList<>(new HashSet<>(points));
-        }
+        List<Point> result = new ArrayList<>();
+        result.addAll(data.getFourAttack());
+        result.addAll(data.getThreeOpenAttack());
+        result.addAll(data.getNotKey());
+        return result;
     }
 
     private static int getScore(GameMap gameMap, Point point) {
