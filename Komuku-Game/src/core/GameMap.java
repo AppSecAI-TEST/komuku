@@ -193,7 +193,7 @@ public class GameMap {
                     result.add(new Point(i, j));
                     continue;
                 }
-                if (signalOtherColorTwo[i][j] > 1) {
+                if (signalOtherColorTwo[i][j] > 0) {
                     result.add(new Point(i, j));
                 }
             }

@@ -12,6 +12,9 @@ public class ComboProcessor {
 
     private static boolean debug = false;
 
+    //是否考虑3的情况
+    private static boolean careThree = true;
+
     static boolean canKill(GameMap gameMap, Color targetColor, int deep) {
         boolean result = dfsKill(gameMap, targetColor, targetColor, deep);
         if (debug) {
@@ -65,21 +68,21 @@ public class ComboProcessor {
     }
 
     private static List<Point> getComboAttackPoints(GameMap gameMap, Color color, AnalyzedData data) {
-        //如果能连5，则连5
-//        if (!data.getFiveAttack().isEmpty()) {
-//            return new ArrayList<>(data.getFiveAttack());
-//        }
         //如果有对方冲4，则防冲4
         if (!data.getFourDefence().isEmpty()) {
             return new ArrayList<>(data.getFourDefence());
         }
         //如果有对方活3，冲四
-//        if (!data.getThreeDefence().isEmpty()) {
-//            return new ArrayList<>(data.getFourAttack());
-//        }
+        if (careThree) {
+            if (!data.getThreeDefence().isEmpty()) {
+                return new ArrayList<>(data.getFourAttack());
+            }
+        }
         List<Point> result = new ArrayList<>();
         result.addAll(data.getFourAttack());
-//        result.addAll(data.getThreeOpenAttack());
+        if (careThree) {
+            result.addAll(data.getThreeOpenAttack());
+        }
         return result;
     }
 
@@ -88,12 +91,14 @@ public class ComboProcessor {
         if (!data.getFourDefence().isEmpty()) {
             return new ArrayList<>(data.getFourDefence());
         }
-//        //如果有对方活3，则防活3或者冲四
-//        if (!data.getThreeDefence().isEmpty()) {
-//            return new ArrayList<Point>(data.getFourAttack()) {{
-//                addAll(data.getThreeDefence());
-//            }};
-//        }
+        if (careThree) {
+            //如果有对方活3，则防活3或者冲四
+            if (!data.getThreeDefence().isEmpty()) {
+                return new ArrayList<Point>(data.getFourAttack()) {{
+                    addAll(data.getThreeDefence());
+                }};
+            }
+        }
         return new ArrayList<>();
     }
 

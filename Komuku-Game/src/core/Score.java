@@ -1,153 +1,169 @@
 package core;
 
-import entity.Point;
 import enumeration.Color;
 import helper.MapDriver;
 
-import java.util.HashMap;
-import java.util.List;
-
 class Score {
 
+    private static int ONE = 4;
+    private static int TWO = 10;
+    private static int THREE = 100;
+    private static int FOUR = 200;
+
+    private static int directX[] = {0, 1, 1, 1};
+    private static int directY[] = {1, 1, 0, -1};
+
     static int getMapScore(GameMap gameMap, Color color) {
-        //f[i][j][k] 表示在以 i j 为起点的坐标 k 为方向，连续5个节点的统计量
-        int[][][] currentColorCount = new int[Config.size][Config.size][Config.size];
-
-
         int value = 0;
-        for (int i = 0; i < Config.size; i++)
+        value += getSingleValue(gameMap, color);
+        value += getMultipleValue(gameMap, color);
+        return value;
+    }
+
+    static private int getSingleValue(GameMap gameMap, Color color) {
+        int value = 0;
+
+        //计算单个的棋子的气
+        for (int i = 0; i < Config.size; i++) {
             for (int j = 0; j < Config.size; j++) {
-                Point point = new Point(i, j);
-                value += getMultipleCloseValue(gameMap, color, point);
-                value += getOneValue(gameMap, color, point);
-                value += getTwoValue(gameMap, color, point);
-                value += getThreeValue(gameMap, color, point);
-                value += getFourValue(gameMap, color, point);
-                value += getFiveValue(gameMap, color, point);
+                Color currentColor = gameMap.getColor(i, j);
+                if (currentColor == Color.NULL)
+                    continue;
+
+                int nullCount = 0;
+                boolean signal = false;
+                for (int k = 0; k < 4; k++) {
+                    int px = i + directX[k];
+                    int py = i + directY[k];
+
+                    int bx = i - directX[k];
+                    int by = i - directY[k];
+                    if (gameMap.reachable(px, py) && gameMap.reachable(bx, by)) {
+                        Color nearColor1 = gameMap.getColor(px, py);
+                        Color nearColor2 = gameMap.getColor(px, py);
+                        if (nearColor1 == currentColor || nearColor2 == currentColor) {
+                            signal = true;
+                            break;
+                        }
+                        if (nearColor1 == currentColor.getOtherColor() || nearColor2 == currentColor.getOtherColor()) {
+                            continue;
+                        }
+                        nullCount++;
+                    }
+                }
+                if (signal) {
+                    continue;
+                }
+
+                if (currentColor == color) {
+                    value += nullCount * ONE;
+                } else {
+                    value -= nullCount * ONE;
+                }
+
             }
+        }
         return value;
     }
 
-    static private int getMultipleCloseValue(GameMap gameMap, Color color, Point point) {
-        Color headColor = gameMap.getColor(point);
-        if (gameMap.getColor(point) == Color.NULL) {
-            return 0;
-        }
-
+    static private int getMultipleValue(GameMap gameMap, Color color) {
         int value = 0;
+        //大于2个的情形此处使用动态规划
+        //定义：    f[i][j][k] 表示以i,j为终点，在方向k上的统计
+        //转移方程: f[i][j][k] = a[i][j][k] + f[i-dx[k]][j-dy[k]][k]
+        int[][][] sameCount = new int[Config.size][Config.size][4];
+        int[][][] otherCount = new int[Config.size][Config.size][4];
 
-        for (int direct = 0; direct < 8; direct++) {
-            List<Point> points = gameMap.getLinePoints(point, direct, 5);
-            if (points == null) {
-                continue;
-            }
-            List<Color> colors = gameMap.getColors(points);
-            Color startColor = colors.get(1);
-            if (startColor != headColor.getOtherColor()) {
-                continue;
-            }
-            int colorCount = 1;
-            int otherColorCount = 0;
-            for (int i = 2; i <= 5; i++) {
-                Color midColor = colors.get(i);
-                if (midColor == startColor.getOtherColor()) {
-                    otherColorCount++;
-                    break;
+        //方向 0-2
+        for (int k = 0; k < 3; k++) {
+            for (int i = 0; i < Config.size; i++) {
+                for (int j = 0; j < Config.size; j++) {
+                    Color currentColor = gameMap.getColor(i, j);
+                    if (currentColor == color) {
+                        sameCount[i][j][k]++;
+                    }
+                    if (currentColor.getOtherColor() == color) {
+                        otherCount[i][j][k]++;
+                    }
+
+                    int bx = i - directX[k];
+                    int by = j - directY[k];
+                    if (gameMap.reachable(bx, by)) {
+                        sameCount[i][j][k] += sameCount[bx][by][k];
+                        otherCount[i][j][k] += otherCount[bx][by][k];
+                    }
+
+                    if (gameMap.reachable(i - directX[k] * 5, j - directY[k] * 5)) {
+                        Color forwardColor = gameMap.getColor(i - directX[k] * 5, j - directY[k] * 5);
+                        if (forwardColor == color) {
+                            sameCount[i][j][k]--;
+                        }
+                        if (forwardColor.getOtherColor() == color) {
+                            otherCount[i][j][k]--;
+                        }
+                    }
+
+                    value += getValueByCount(sameCount[i][j][k], otherCount[i][j][k]);
                 }
-                if (midColor == startColor) {
-                    colorCount++;
-                }
-            }
-            if (otherColorCount > 0) {
-                continue;
-            }
-            if (colorCount == 1) {
-                value += 1;
-            }
-            if (colorCount == 2) {
-                value += 10;
-            }
-            if (colorCount == 3) {
-                value += 50;
-            }
-            if (colorCount == 4) {
-                value += 100;
             }
         }
 
-        if (headColor == color) {
-            value = -value;
+        //方向3
+        int k = 3;
+        for (int i = 0; i < Config.size; i++) {
+            for (int j = Config.size - 1; j >= 0; j--) {
+                Color currentColor = gameMap.getColor(i, j);
+                if (currentColor == color) {
+                    sameCount[i][j][k]++;
+                }
+                if (currentColor.getOtherColor() == color) {
+                    otherCount[i][j][k]++;
+                }
+
+                int bx = i - directX[k];
+                int by = j - directY[k];
+                if (gameMap.reachable(bx, by)) {
+                    sameCount[i][j][k] += sameCount[bx][by][k];
+                    otherCount[i][j][k] += otherCount[bx][by][k];
+                }
+
+                if (gameMap.reachable(i - directX[k] * 5, j - directY[k] * 5)) {
+                    Color forwardColor = gameMap.getColor(i - directX[k] * 5, j - directY[k] * 5);
+                    if (forwardColor == color) {
+                        sameCount[i][j][k]--;
+                    }
+                    if (forwardColor.getOtherColor() == color) {
+                        otherCount[i][j][k]--;
+                    }
+                }
+
+                value += getValueByCount(sameCount[i][j][k], otherCount[i][j][k]);
+            }
         }
+
         return value;
     }
 
-    static private int getOneValue(GameMap gameMap, Color color, Point point) {
-        return 0;
-    }
-
-    static private int getTwoValue(GameMap gameMap, Color color, Point point) {
-        Color headColor = gameMap.getColor(point);
-        if (gameMap.getColor(point) == Color.NULL) {
-            return 0;
-        }
-
+    static private int getValueByCount(int sameCount, int otherCount) {
         int value = 0;
-
-        for (int direct = 0; direct < 8; direct++) {
-            List<Point> points = gameMap.getLinePoints(point, direct, 5);
-            if (points == null) {
-                continue;
-            }
-            List<Color> colors = gameMap.getColors(points);
-            Color startColor = colors.get(1);
-            if (startColor != headColor.getOtherColor()) {
-                continue;
-            }
-            int colorCount = 1;
-            int otherColorCount = 0;
-            for (int i = 2; i <= 5; i++) {
-                Color midColor = colors.get(i);
-                if (midColor == startColor.getOtherColor()) {
-                    otherColorCount++;
-                    break;
-                }
-                if (midColor == startColor) {
-                    colorCount++;
-                }
-            }
-            if (otherColorCount > 0) {
-                continue;
-            }
-            if (colorCount == 1) {
-                value += 1;
-            }
-            if (colorCount == 2) {
-                value += 10;
-            }
-            if (colorCount == 3) {
-                value += 50;
-            }
-            if (colorCount == 4) {
-                value += 100;
-            }
+        if (sameCount == 0) {
+            if (otherCount == 2)
+                value -= TWO;
+            if (otherCount == 3)
+                value -= THREE;
+            if (otherCount == 4)
+                value -= FOUR;
         }
 
-        if (headColor == color) {
-            value = -value;
+        if (otherCount == 0) {
+            if (sameCount == 2)
+                value += TWO;
+            if (sameCount == 3)
+                value += THREE;
+            if (sameCount == 4)
+                value += FOUR;
         }
         return value;
-    }
-
-    static private int getThreeValue(GameMap gameMap, Color color, Point point) {
-        return 0;
-    }
-
-    static private int getFourValue(GameMap gameMap, Color color, Point point) {
-        return 0;
-    }
-
-    static private int getFiveValue(GameMap gameMap, Color color, Point point) {
-        return 0;
     }
 
     static public void main(String[] args) {
