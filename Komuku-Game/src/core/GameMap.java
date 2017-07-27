@@ -52,15 +52,36 @@ public class GameMap {
         return map[x][y];
     }
 
+    List<Color> getColors(List<Point> points) {
+        List<Color> colors = new ArrayList<>();
+        points.forEach(point -> colors.add(getColor(point)));
+        return colors;
+    }
+
     void setColor(Point point, Color color) {
         map[point.getX()][point.getY()] = color;
     }
 
-    public Point getRelatePoint(Point point, int direct, int distance) {
+    Point getRelatePoint(Point point, int direct, int distance) {
         return new Point(point.getX() + directX[direct] * distance, point.getY() + directY[direct] * distance);
     }
 
-    public boolean checkColors(Color color, Point point, int direct, int start, int end) {
+    List<Point> getLinePoints(Point point, int direct, int distance) {
+        List<Point> points = new ArrayList<>();
+        int x = point.getX();
+        int y = point.getY();
+        if (!reachable(getRelatePoint(point, direct, distance))) {
+            return null;
+        }
+        for (int i = 0; i <= distance; i++) {
+            points.add(new Point(x, y));
+            x += directX[direct];
+            y += directY[direct];
+        }
+        return points;
+    }
+
+    boolean checkColors(Color color, Point point, int direct, int start, int end) {
         for (int i = start; i <= end; i++) {
             Point fresh = getRelatePoint(point, direct, i);
             if (!reachable(fresh)) {

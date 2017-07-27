@@ -1,42 +1,84 @@
 package core;
 
-import core.evalution.ScoreFive;
-import core.evalution.ScoreMultiple;
-import core.evalution.ScoreMultipleClose;
-import core.evalution.ScoreOne;
 import entity.Point;
 import enumeration.Color;
+import helper.MapDriver;
+
+import java.util.HashMap;
+import java.util.List;
 
 class Score {
 
-    private static ScoreOne scoreOne = new ScoreOne();
-    private static ScoreFive scoreFive = new ScoreFive();
-    private static ScoreMultiple scoreMultiple = new ScoreMultiple();
-    private static ScoreMultipleClose scoreMultipleClose = new ScoreMultipleClose();
-
     static int getMapScore(GameMap gameMap, Color color) {
-        int value = 0;
+        //f[i][j][k] 表示在以 i j 为起点的坐标 k 为方向，连续5个节点的统计量
+        int[][][] currentColorCount = new int[Config.size][Config.size][Config.size];
 
+
+        int value = 0;
         for (int i = 0; i < Config.size; i++)
             for (int j = 0; j < Config.size; j++) {
                 Point point = new Point(i, j);
-                int fiveScore = scoreFive.getScore(gameMap, point, color);
-                if (fiveScore > 0) {
-                    return Integer.MAX_VALUE;
-                }
-                if (fiveScore < 0) {
-                    return Integer.MIN_VALUE;
-                }
-                value += scoreOne.getScore(gameMap, point, color);
-                value += scoreMultiple.getScore(gameMap, point, color);
-                value += scoreFive.getScore(gameMap, point, color);
-                value += scoreMultipleClose.getScore(gameMap, point, color);
+                value += getMultipleCloseValue(gameMap, color, point);
+                value += getOneValue(gameMap, color, point);
+                value += getTwoValue(gameMap, color, point);
+                value += getThreeValue(gameMap, color, point);
+                value += getFourValue(gameMap, color, point);
+                value += getFiveValue(gameMap, color, point);
             }
         return value;
     }
 
-    static private int getMutipleCloseValue(GameMap gameMap, Color color, Point point) {
-        return 0;
+    static private int getMultipleCloseValue(GameMap gameMap, Color color, Point point) {
+        Color headColor = gameMap.getColor(point);
+        if (gameMap.getColor(point) == Color.NULL) {
+            return 0;
+        }
+
+        int value = 0;
+
+        for (int direct = 0; direct < 8; direct++) {
+            List<Point> points = gameMap.getLinePoints(point, direct, 5);
+            if (points == null) {
+                continue;
+            }
+            List<Color> colors = gameMap.getColors(points);
+            Color startColor = colors.get(1);
+            if (startColor != headColor.getOtherColor()) {
+                continue;
+            }
+            int colorCount = 1;
+            int otherColorCount = 0;
+            for (int i = 2; i <= 5; i++) {
+                Color midColor = colors.get(i);
+                if (midColor == startColor.getOtherColor()) {
+                    otherColorCount++;
+                    break;
+                }
+                if (midColor == startColor) {
+                    colorCount++;
+                }
+            }
+            if (otherColorCount > 0) {
+                continue;
+            }
+            if (colorCount == 1) {
+                value += 1;
+            }
+            if (colorCount == 2) {
+                value += 10;
+            }
+            if (colorCount == 3) {
+                value += 50;
+            }
+            if (colorCount == 4) {
+                value += 100;
+            }
+        }
+
+        if (headColor == color) {
+            value = -value;
+        }
+        return value;
     }
 
     static private int getOneValue(GameMap gameMap, Color color, Point point) {
@@ -44,7 +86,56 @@ class Score {
     }
 
     static private int getTwoValue(GameMap gameMap, Color color, Point point) {
-        return 0;
+        Color headColor = gameMap.getColor(point);
+        if (gameMap.getColor(point) == Color.NULL) {
+            return 0;
+        }
+
+        int value = 0;
+
+        for (int direct = 0; direct < 8; direct++) {
+            List<Point> points = gameMap.getLinePoints(point, direct, 5);
+            if (points == null) {
+                continue;
+            }
+            List<Color> colors = gameMap.getColors(points);
+            Color startColor = colors.get(1);
+            if (startColor != headColor.getOtherColor()) {
+                continue;
+            }
+            int colorCount = 1;
+            int otherColorCount = 0;
+            for (int i = 2; i <= 5; i++) {
+                Color midColor = colors.get(i);
+                if (midColor == startColor.getOtherColor()) {
+                    otherColorCount++;
+                    break;
+                }
+                if (midColor == startColor) {
+                    colorCount++;
+                }
+            }
+            if (otherColorCount > 0) {
+                continue;
+            }
+            if (colorCount == 1) {
+                value += 1;
+            }
+            if (colorCount == 2) {
+                value += 10;
+            }
+            if (colorCount == 3) {
+                value += 50;
+            }
+            if (colorCount == 4) {
+                value += 100;
+            }
+        }
+
+        if (headColor == color) {
+            value = -value;
+        }
+        return value;
     }
 
     static private int getThreeValue(GameMap gameMap, Color color, Point point) {
@@ -57,5 +148,11 @@ class Score {
 
     static private int getFiveValue(GameMap gameMap, Color color, Point point) {
         return 0;
+    }
+
+    static public void main(String[] args) {
+        Color[][] colors = MapDriver.readMap();
+        GameMap gameMap = new GameMap(colors);
+        System.out.println(getMapScore(gameMap, Color.BLACK));
     }
 }
