@@ -33,7 +33,7 @@ public class Game {
         result.reset();
         counter.clear();
         aiColor = color;
-        if (LevelProcessor.win(gameMap) != null) {
+        if (WinChecker.win(gameMap) != null) {
             return null;
         }
         //只有一个扩展点的情形直接返回
@@ -48,7 +48,7 @@ public class Game {
     }
 
     public Color win() {
-        return LevelProcessor.win(gameMap);
+        return WinChecker.win(gameMap);
     }
 
     public CountData getCountData() {
@@ -61,7 +61,7 @@ public class Game {
 
     private int dfsScore(int level, Color color, Integer parentMin, Integer parentMax) {
         //输赢判定
-        Color winResult = LevelProcessor.win(gameMap);
+        Color winResult = WinChecker.win(gameMap);
         if (winResult != null) {
             if (winResult == aiColor) {
                 return Integer.MAX_VALUE;

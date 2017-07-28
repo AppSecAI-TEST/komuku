@@ -52,12 +52,6 @@ public class GameMap {
         return map[x][y];
     }
 
-    List<Color> getColors(List<Point> points) {
-        List<Color> colors = new ArrayList<>();
-        points.forEach(point -> colors.add(getColor(point)));
-        return colors;
-    }
-
     void setColor(Point point, Color color) {
         map[point.getX()][point.getY()] = color;
     }
@@ -66,42 +60,33 @@ public class GameMap {
         return new Point(point.getX() + directX[direct] * distance, point.getY() + directY[direct] * distance);
     }
 
-    List<Point> getLinePoints(Point point, int direct, int distance) {
-        List<Point> points = new ArrayList<>();
-        int x = point.getX();
-        int y = point.getY();
-        if (!reachable(getRelatePoint(point, direct, distance))) {
-            return null;
-        }
-        for (int i = 0; i <= distance; i++) {
-            points.add(new Point(x, y));
+    boolean checkColors(Color color, Point point, int direct, int start, int end) {
+        int x = point.getX() + start * (directX[direct]);
+        int y = point.getY() + start * (directY[direct]);
+        for (int i = start; i <= end; i++) {
+            if (!reachable(x, y)) {
+                return false;
+            }
+            if (getColor(x, y) != color) {
+                return false;
+            }
             x += directX[direct];
             y += directY[direct];
-        }
-        return points;
-    }
-
-    boolean checkColors(Color color, Point point, int direct, int start, int end) {
-        for (int i = start; i <= end; i++) {
-            Point fresh = getRelatePoint(point, direct, i);
-            if (!reachable(fresh)) {
-                return false;
-            }
-            if (getColor(fresh) != color) {
-                return false;
-            }
         }
         return true;
     }
 
     int getMaxSequenceWithoutCurrent(Color color, Point point, int direct) {
         int value = 0;
+        int x = point.getX();
+        int y = point.getY();
         for (int i = 1; i < 5; i++) {
-            Point fresh = getRelatePoint(point, direct, i);
-            if (!reachable(fresh)) {
+            x += directX[direct];
+            y += directY[direct];
+            if (!reachable(x, y)) {
                 return value;
             }
-            if (getColor(fresh) == color) {
+            if (getColor(x, y) == color) {
                 value += 1;
             } else {
                 return value;
@@ -112,12 +97,15 @@ public class GameMap {
 
     int getMaxSequence(Color color, Point point, int direct) {
         int value = 0;
+        int x = point.getX();
+        int y = point.getY();
         for (int i = 0; i < 4; i++) {
-            Point fresh = getRelatePoint(point, direct, i);
-            if (!reachable(fresh)) {
+            x += directX[direct];
+            y += directY[direct];
+            if (!reachable(x, y)) {
                 return value;
             }
-            if (getColor(fresh) == color) {
+            if (getColor(x, y) == color) {
                 value += 1;
             } else {
                 return value;
