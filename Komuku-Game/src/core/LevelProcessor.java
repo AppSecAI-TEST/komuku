@@ -17,8 +17,7 @@ class LevelProcessor {
 
     private static int[] sequenceWeight = {0, 1, 10, 100, 1000, 10000};
 
-    static List<Point> getExpandPoints(GameMap gameMap, Color color, int level, int searchDeep) {
-        AnalyzedData data = gameMap.getAnalyzedPoints(color);
+    static List<Point> getExpandPoints(GameMap gameMap, Analyzer data, int level, int searchDeep) {
         List<Point> result = selectSet(data, level, searchDeep);
 
         if (result.isEmpty()) {
@@ -26,20 +25,20 @@ class LevelProcessor {
             return result;
         }
 
-        if (!result.isEmpty() && result.size() == data.getOrigin().size()) {
-            //分段排序
-            int signalFourAttack = data.getFourAttack().size();
-            int signalThreeAttack = signalFourAttack + data.getThreeOpenAttack().size();
-
-            List<Integer> score = new ArrayList<>(result.size());
-            result.forEach(point ->
-                    score.add(getScore(gameMap, point))
-            );
-
-            sort(0, signalFourAttack, result, score);
-            sort(signalFourAttack, signalThreeAttack, result, score);
-            sort(signalThreeAttack, result.size(), result, score);
-        }
+//        if (!result.isEmpty() && result.size() == data.getOrigin().size()) {
+//            //分段排序
+//            int signalFourAttack = data.getFourAttack().size();
+//            int signalThreeAttack = signalFourAttack + data.getThreeOpenAttack().size();
+//
+//            List<Integer> score = new ArrayList<>(result.size());
+//            result.forEach(point ->
+//                    score.add(getScore(gameMap, point))
+//            );
+//
+//            sort(0, signalFourAttack, result, score);
+//            sort(signalFourAttack, signalThreeAttack, result, score);
+//            sort(signalThreeAttack, result.size(), result, score);
+//        }
 
         if (debug) {
             printResult(result);
@@ -47,7 +46,7 @@ class LevelProcessor {
         return result;
     }
 
-    private static List<Point> selectSet(AnalyzedData data, int level, int searchDeep) {
+    private static List<Point> selectSet(Analyzer data, int level, int searchDeep) {
         //如果能连5，则连5
         if (!data.getFiveAttack().isEmpty()) {
             return new ArrayList<>(data.getFiveAttack());
@@ -65,6 +64,7 @@ class LevelProcessor {
         List<Point> result = new ArrayList<>();
         result.addAll(data.getFourAttack());
         result.addAll(data.getThreeOpenAttack());
+        result.addAll(data.getTwoAttack());
         result.addAll(data.getNotKey());
         return result;
     }
@@ -73,7 +73,7 @@ class LevelProcessor {
         int value = 0;
         for (int i = 0; i < 8; i++) {
             Point fresh = gameMap.getRelatePoint(point, i, 1);
-            if (gameMap.reachable(fresh)) {
+            if (GameMap.reachable(fresh)) {
                 Color color = gameMap.getColor(fresh);
                 if (color != Color.NULL) {
                     int length = gameMap.getMaxSequence(color, fresh, i);
@@ -106,17 +106,5 @@ class LevelProcessor {
             System.out.println(point.getX() + " " + point.getY());
         });
         System.out.printf(String.valueOf(result.size()));
-    }
-
-    public static void main(String[] args) {
-        Color[][] map = MapDriver.readMap();
-        GameMap gameMap = new GameMap(map);
-
-        AnalyzedData points = gameMap.getAnalyzedPoints(Color.BLACK);
-        System.out.println(points.getFiveAttack());
-        System.out.println(points.getFourAttack());
-        System.out.println(points.getThreeOpenAttack());
-        System.out.println(points.getFourDefence());
-        System.out.println(points.getThreeDefence());
     }
 }

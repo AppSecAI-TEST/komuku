@@ -1,6 +1,5 @@
 package core;
 
-import entity.AnalyzedData;
 import entity.Point;
 import enumeration.Color;
 import helper.MapDriver;
@@ -15,8 +14,8 @@ public class ComboProcessor {
     //是否考虑3的情况
     private static boolean careThree = true;
 
-    static boolean canKill(GameMap gameMap, Color targetColor, int deep) {
-        boolean result = dfsKill(gameMap, targetColor, targetColor, deep);
+    static boolean canKill(GameMap gameMap, Color targetColor, int deep, Score score) {
+        boolean result = dfsKill(gameMap, targetColor, targetColor, deep, score);
         if (debug) {
             if (result) {
                 MapDriver.printToConsole(gameMap);
@@ -25,24 +24,24 @@ public class ComboProcessor {
         return result;
     }
 
-    private static boolean dfsKill(GameMap gameMap, Color color, Color targetColor, int level) {
+    private static boolean dfsKill(GameMap gameMap, Color color, Color targetColor, int level, Score score) {
         if (level == 0) {
             return false;
         }
-        AnalyzedData data = gameMap.getAnalyzedPoints(color);
+        Analyzer data = new Analyzer(gameMap, color, targetColor, gameMap.getNeighbor(color), score);
         if (color == targetColor) {
             if (data.getFiveAttack().size() > 0) {
                 return true;
             }
             List<Point> points = getComboAttackPoints(gameMap, color, data);
             for (Point point : points) {
-                gameMap.setColor(point, color);
-                boolean value = dfsKill(gameMap, color.getOtherColor(), targetColor, level - 1);
+                setColor(point, color, Color.NULL, targetColor, score, gameMap);
+                boolean value = dfsKill(gameMap, color.getOtherColor(), targetColor, level - 1, score);
                 if (value) {
-                    gameMap.setColor(point, Color.NULL);
+                    setColor(point, Color.NULL, color, targetColor, score, gameMap);
                     return true;
                 }
-                gameMap.setColor(point, Color.NULL);
+                setColor(point, Color.NULL, color, targetColor, score, gameMap);
             }
             return false;
         } else {
@@ -55,19 +54,19 @@ public class ComboProcessor {
                 return false;
             }
             for (Point point : points) {
-                gameMap.setColor(point, color);
-                boolean value = dfsKill(gameMap, color.getOtherColor(), targetColor, level - 1);
+                setColor(point, color, Color.NULL, targetColor, score, gameMap);
+                boolean value = dfsKill(gameMap, color.getOtherColor(), targetColor, level - 1, score);
                 if (!value) {
-                    gameMap.setColor(point, Color.NULL);
+                    setColor(point, Color.NULL, color, targetColor, score, gameMap);
                     return false;
                 }
-                gameMap.setColor(point, Color.NULL);
+                setColor(point, Color.NULL, color, targetColor, score, gameMap);
             }
             return true;
         }
     }
 
-    private static List<Point> getComboAttackPoints(GameMap gameMap, Color color, AnalyzedData data) {
+    private static List<Point> getComboAttackPoints(GameMap gameMap, Color color, Analyzer data) {
         //如果有对方冲4，则防冲4
         if (!data.getFourDefence().isEmpty()) {
             return new ArrayList<>(data.getFourDefence());
@@ -86,7 +85,7 @@ public class ComboProcessor {
         return result;
     }
 
-    private static List<Point> getComboDefencePoints(GameMap gameMap, Color color, AnalyzedData data) {
+    private static List<Point> getComboDefencePoints(GameMap gameMap, Color color, Analyzer data) {
         //如果有对方冲4，则防冲4
         if (!data.getFourDefence().isEmpty()) {
             return new ArrayList<>(data.getFourDefence());
@@ -102,9 +101,20 @@ public class ComboProcessor {
         return new ArrayList<>();
     }
 
+
+    private static void setColor(Point point, Color color, Color forwardColor, Color aiColor, Score score, GameMap gameMap) {
+        score.setColor(point, color, forwardColor, aiColor);
+        gameMap.setColor(point, color);
+    }
+
     public static void main(String[] args) {
         Color[][] colors = MapDriver.readMap();
         GameMap gameMap = new GameMap(colors);
-        System.out.println(canKill(gameMap, Color.BLACK, 3));
+        MapDriver.printToConsole(gameMap);
+        Score score = new Score();
+        score.init(gameMap, Color.BLACK);
+        long time = System.currentTimeMillis();
+        System.out.println(canKill(gameMap, Color.BLACK, 9, score));
+        System.out.println(System.currentTimeMillis() - time + "ms");
     }
 }
