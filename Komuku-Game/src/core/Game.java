@@ -74,7 +74,7 @@ public class Game {
         if (level == 1) {
             //谨慎处理败北的情形
             if (color != aiColor) {
-                if (ComboProcessor.canKill(gameMap, color, config.comboDeep + 2, score)) {
+                if (ComboProcessor.canKill(gameMap, color, config.comboDeep, score)) {
                     return Integer.MIN_VALUE;
                 }
             }

@@ -219,14 +219,13 @@ public class Analyzer {
                             }
                         }
                     }
-
+                    if (score.getColorCount(otherColor)[x][y][i] == 1 && score.getColorCount(color)[x][y][i] == 0) {
+                        twoAttack.add(point);
+                    }
                     x += directX[i];
                     y += directY[i];
                     if (!GameMap.reachable(x, y)) {
                         break;
-                    }
-                    if (score.getColorCount(otherColor)[x][y][i] == 1 && score.getColorCount(color)[x][y][i] == 0) {
-                        twoAttack.add(point);
                     }
                 }
             }
@@ -262,5 +261,8 @@ public class Analyzer {
 
         System.out.println("TWO A");
         System.out.println(analyzer.getTwoAttack());
+
+        System.out.println("OTHER");
+        System.out.println(analyzer.getNotKey());
     }
 }

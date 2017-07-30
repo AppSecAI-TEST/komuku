@@ -22,9 +22,12 @@ public class Main {
 
     private static boolean debug = true;
 
+    private static boolean autoRun = false;
+
+    private static boolean updateFile = true;
+
     private static Color aiColor = Color.WHITE;
 
-    private static boolean autoRun = false;
 
     public static void main(String[] args) {
         System.out.println("正在初始化数据...");
@@ -39,8 +42,11 @@ public class Main {
             listen();
         }
         result = game.search(aiColor).getPoint();
+        System.out.println(result);
         map[result.getX()][result.getY()] = aiColor;
-        MapDriver.printMap(map);
+        if (updateFile) {
+            MapDriver.printMap(map);
+        }
         if (autoRun) {
             loop();
         }

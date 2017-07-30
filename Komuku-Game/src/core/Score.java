@@ -14,7 +14,7 @@ class Score {
     private static int directX[] = {0, 1, 1, 1};
     private static int directY[] = {1, 1, 0, -1};
 
-    //大于2个的情形此处使用动态规划
+    //使用动态规划
     //定义：    f[i][j][k] 表示以i,j为终点，在方向k上的统计
     //转移方程: f[i][j][k] = a[i][j][k] + f[i-dx[k]][j-dy[k]][k]
     private int[][][] blackCount = new int[Config.size][Config.size][4];

@@ -15,7 +15,7 @@ public class ComboProcessor {
     private static boolean careThree = true;
 
     static boolean canKill(GameMap gameMap, Color targetColor, int deep, Score score) {
-        boolean result = dfsKill(gameMap, targetColor, targetColor, deep, score);
+        boolean result = dfsKill(gameMap, targetColor, targetColor, deep, score, null);
         if (debug) {
             if (result) {
                 MapDriver.printToConsole(gameMap);
@@ -24,11 +24,18 @@ public class ComboProcessor {
         return result;
     }
 
-    private static boolean dfsKill(GameMap gameMap, Color color, Color targetColor, int level, Score score) {
+    private static boolean dfsKill(GameMap gameMap, Color color, Color targetColor, int level, Score score, Point lastPoint) {
         if (level == 0) {
             return false;
         }
-        Analyzer data = new Analyzer(gameMap, color, targetColor, gameMap.getNeighbor(color), score);
+        //连招只按相邻直线路径计算
+        List<Point> rangePoints;
+        if (lastPoint == null) {
+            rangePoints = gameMap.getNeighbor(color);
+        } else {
+            rangePoints = gameMap.getOnePointLine(lastPoint);
+        }
+        Analyzer data = new Analyzer(gameMap, color, targetColor, rangePoints, score);
         if (color == targetColor) {
             if (data.getFiveAttack().size() > 0) {
                 return true;
@@ -36,7 +43,11 @@ public class ComboProcessor {
             List<Point> points = getComboAttackPoints(gameMap, color, data);
             for (Point point : points) {
                 setColor(point, color, Color.NULL, targetColor, score, gameMap);
-                boolean value = dfsKill(gameMap, color.getOtherColor(), targetColor, level - 1, score);
+                Point nextLastPoint = lastPoint;
+                if (data.getFourAttack().contains(point) || data.getThreeOpenAttack().contains(point)) {
+                    nextLastPoint = point;
+                }
+                boolean value = dfsKill(gameMap, color.getOtherColor(), targetColor, level - 1, score, nextLastPoint);
                 if (value) {
                     setColor(point, Color.NULL, color, targetColor, score, gameMap);
                     return true;
@@ -55,7 +66,7 @@ public class ComboProcessor {
             }
             for (Point point : points) {
                 setColor(point, color, Color.NULL, targetColor, score, gameMap);
-                boolean value = dfsKill(gameMap, color.getOtherColor(), targetColor, level - 1, score);
+                boolean value = dfsKill(gameMap, color.getOtherColor(), targetColor, level - 1, score, lastPoint);
                 if (!value) {
                     setColor(point, Color.NULL, color, targetColor, score, gameMap);
                     return false;
@@ -114,7 +125,7 @@ public class ComboProcessor {
         Score score = new Score();
         score.init(gameMap, Color.BLACK);
         long time = System.currentTimeMillis();
-        System.out.println(canKill(gameMap, Color.BLACK, 9, score));
+        System.out.println(canKill(gameMap, Color.BLACK, 7, score));
         System.out.println(System.currentTimeMillis() - time + "ms");
     }
 }

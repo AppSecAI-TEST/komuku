@@ -118,6 +118,24 @@ public class GameMap {
         return (direct + 4) % 8;
     }
 
+    List<Point> getOnePointLine(Point point) {
+        List<Point> result = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            int x = point.getX();
+            int y = point.getY();
+            for (int k = 1; k < 5; k++) {
+                x += directX[i];
+                y += directY[i];
+                if (reachable(x, y)) {
+                    if (getColor(x, y) == Color.NULL) {
+                        result.add(new Point(x, y));
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
     List<Point> getNeighbor(Color color) {
         int range = 2;
         List<Point> result = new ArrayList<>();
