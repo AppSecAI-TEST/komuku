@@ -35,7 +35,6 @@ public class ComboProcessor {
             counter.countCombo++;
             return false;
         }
-        //连招只按相邻直线路径计算
         List<Point> rangePoints;
         rangePoints = gameMap.getNeighbor(color);
         Analyzer data = new Analyzer(gameMap, color, rangePoints, score);

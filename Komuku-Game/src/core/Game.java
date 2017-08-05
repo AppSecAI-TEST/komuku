@@ -5,6 +5,7 @@ import entity.Counter;
 import entity.Point;
 import enumeration.Color;
 import helper.ConsolePrinter;
+import helper.WinChecker;
 
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class Game {
     public Result search(Color color) {
         result.reset();
         aiColor = color;
-        if (WinChecker.win(gameMap) != null) {
+        if (WinChecker.win(gameMap.getMap()) != null) {
             return null;
         }
         //初始化
@@ -51,10 +52,6 @@ public class Game {
         }
         dfsScore(config.searchDeep, color, Integer.MAX_VALUE, 0);
         return result;
-    }
-
-    public Color win() {
-        return WinChecker.win(gameMap);
     }
 
     public CountData getCountData() {

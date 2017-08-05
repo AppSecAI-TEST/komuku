@@ -4,6 +4,7 @@ import entity.CountData;
 import entity.Point;
 import enumeration.Color;
 import helper.MapDriver;
+import helper.WinChecker;
 
 public class Main {
 
@@ -29,8 +30,8 @@ public class Main {
         System.out.println("正在初始化数据...");
         game.init(map, new Config());
         System.out.println("开始计算...");
-        if (game.win() != null) {
-            System.out.println(game.win() + " win");
+        if (WinChecker.win(map) != null) {
+            System.out.println(WinChecker.win(map) + " win");
             return;
         }
         Config.debug = debug;

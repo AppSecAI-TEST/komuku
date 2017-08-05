@@ -14,7 +14,7 @@ public class GameMap {
 
     private Color[][] map;
 
-    GameMap(Color[][] map) {
+    public GameMap(Color[][] map) {
         this.map = map;
     }
 
@@ -38,7 +38,7 @@ public class GameMap {
         return map;
     }
 
-    Color getColor(Point point) {
+    public Color getColor(Point point) {
         if (!reachable(point)) {
             return null;
         }
@@ -53,7 +53,7 @@ public class GameMap {
         map[point.getX()][point.getY()] = color;
     }
 
-    boolean checkColors(Color color, Point point, int direct, int start, int end) {
+    public boolean checkColors(Color color, Point point, int direct, int start, int end) {
         int x = point.getX() + start * (directX[direct]);
         int y = point.getY() + start * (directY[direct]);
         for (int i = start; i <= end; i++) {
