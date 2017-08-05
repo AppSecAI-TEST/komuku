@@ -29,7 +29,7 @@ public class Player {
         return game.getCountData();
     }
 
-    Result play(Color color) {
+    public Result play(Color color) {
         return game.search(color);
     }
 
