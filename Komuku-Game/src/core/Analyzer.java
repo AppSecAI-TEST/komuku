@@ -1,6 +1,5 @@
 package core;
 
-import entity.AnalyzedData;
 import entity.Point;
 import enumeration.Color;
 import helper.MapDriver;
@@ -19,14 +18,9 @@ public class Analyzer {
 
     private Color color;
 
-    private Color aiColor;
-
-    private final static int SIZE = 128;
-
     private static int directX[] = {0, 1, 1, 1};
-    private static int directY[] = {1, 1, 0, -1};
 
-    private boolean attackFinish = false;
+    private static int directY[] = {1, 1, 0, -1};
 
     private Set<Point> fiveAttack;
 
@@ -40,101 +34,24 @@ public class Analyzer {
 
     private Set<Point> twoAttack;
 
-    private Set<Point> origin;
-
     private Set<Point> notKey;
 
-    public Analyzer(GameMap gameMap, Color color, Color aiColor, List<Point> points, Score score) {
+    public Analyzer(GameMap gameMap, Color color, List<Point> points, Score score) {
         this.gameMap = gameMap;
         this.points = points;
         this.score = score;
         this.color = color;
-        this.aiColor = aiColor;
-    }
-
-
-    public Set<Point> getFiveAttack() {
-        if (fiveAttack != null) {
-            return fiveAttack;
-        }
         getAndDefence();
-        return fiveAttack;
-    }
-
-    public Set<Point> getFourAttack() {
-        if (fourAttack != null) {
-            return fourAttack;
-        }
-        getAndDefence();
-        return fourAttack;
-    }
-
-
-    public Set<Point> getThreeOpenAttack() {
-        if (threeOpenAttack != null) {
-            return threeOpenAttack;
-        }
-        getAndDefence();
-        return threeOpenAttack;
-    }
-
-    public Set<Point> getFourDefence() {
-        if (fourDefence != null) {
-            return fourDefence;
-        }
-        getAndDefence();
-        return fourDefence;
-    }
-
-    public Set<Point> getThreeDefence() {
-        if (threeDefence != null) {
-            return threeDefence;
-        }
-        getAndDefence();
-        return threeDefence;
-    }
-
-    public Set<Point> getTwoAttack() {
-        if (twoAttack != null) {
-            return twoAttack;
-        }
-        getAndDefence();
-        return twoAttack;
-
-    }
-
-    public Set<Point> getOrigin() {
-        if (origin != null) {
-            return origin;
-        }
-        origin = new HashSet<>(points);
-        return origin;
-    }
-
-    public Set<Point> getNotKey() {
-        if (notKey != null) {
-            return notKey;
-        }
-        Set<Point> notKey = getOrigin();
-        notKey.removeAll(getFiveAttack());
-        notKey.removeAll(getFourAttack());
-        notKey.removeAll(getFourDefence());
-        notKey.removeAll(getThreeDefence());
-        notKey.removeAll(getThreeOpenAttack());
-        notKey.removeAll(getTwoAttack());
-        return notKey;
     }
 
     private void getAndDefence() {
-        if (attackFinish) {
-            return;
-        }
-        fiveAttack = new HashSet<>(SIZE);
-        fourAttack = new HashSet<>(SIZE);
-        threeOpenAttack = new HashSet<>(SIZE);
-        fourDefence = new HashSet<>(SIZE);
-        threeDefence = new HashSet<>(SIZE);
-        twoAttack = new HashSet<>(SIZE);
+        fiveAttack = new HashSet<>();
+        fourAttack = new HashSet<>();
+        threeOpenAttack = new HashSet<>();
+        fourDefence = new HashSet<>();
+        threeDefence = new HashSet<>();
+        twoAttack = new HashSet<>();
+        notKey = new HashSet<>();
 
         points.forEach(point -> {
             for (int i = 0; i < 4; i++) {
@@ -219,7 +136,7 @@ public class Analyzer {
                             }
                         }
                     }
-                    if (score.getColorCount(otherColor)[x][y][i] == 1 && score.getColorCount(color)[x][y][i] == 0) {
+                    if (score.getColorCount(otherColor)[x][y][i] == 0 && score.getColorCount(color)[x][y][i] == 1) {
                         twoAttack.add(point);
                     }
                     x += directX[i];
@@ -232,17 +149,54 @@ public class Analyzer {
         });
 
         threeOpenAttack.removeAll(fourAttack);
+
         twoAttack.removeAll(fourAttack);
         twoAttack.removeAll(fourDefence);
         twoAttack.removeAll(threeOpenAttack);
         twoAttack.removeAll(threeDefence);
+
+        notKey = new HashSet<>(points);
+        notKey.removeAll(fiveAttack);
+        notKey.removeAll(fourAttack);
+        notKey.removeAll(fourDefence);
+        notKey.removeAll(threeDefence);
+        notKey.removeAll(threeOpenAttack);
+        notKey.removeAll(twoAttack);
+    }
+
+    public Set<Point> getFiveAttack() {
+        return fiveAttack;
+    }
+
+    public Set<Point> getFourAttack() {
+        return fourAttack;
+    }
+
+    public Set<Point> getThreeOpenAttack() {
+        return threeOpenAttack;
+    }
+
+    public Set<Point> getFourDefence() {
+        return fourDefence;
+    }
+
+    public Set<Point> getThreeDefence() {
+        return threeDefence;
+    }
+
+    public Set<Point> getTwoAttack() {
+        return twoAttack;
+    }
+
+    public Set<Point> getNotKey() {
+        return notKey;
     }
 
     public static void main(String[] args) {
         GameMap gameMap = new GameMap(MapDriver.readMap());
         Score score = new Score();
-        score.init(gameMap, Color.BLACK);
-        Analyzer analyzer = new Analyzer(gameMap, Color.BLACK, Color.BLACK, gameMap.getNeighbor(Color.BLACK), score);
+        score.init(gameMap, Color.WHITE);
+        Analyzer analyzer = new Analyzer(gameMap, Color.WHITE, gameMap.getNeighbor(Color.WHITE), score);
 
         System.out.println("FIVE A");
         System.out.println(analyzer.getFiveAttack());

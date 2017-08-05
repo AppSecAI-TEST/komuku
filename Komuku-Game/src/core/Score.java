@@ -74,7 +74,7 @@ class Score {
         }
     }
 
-    public int getValueByCount(int blackCount, int whiteCount, Color color) {
+    private int getValueByCount(int blackCount, int whiteCount, Color color) {
         int value = 0;
         if (blackCount == 0) {
             if (whiteCount == 1)
@@ -101,14 +101,6 @@ class Score {
             value = -value;
         }
         return value;
-    }
-
-    public int[][][] getBlackCount() {
-        return blackCount;
-    }
-
-    public int[][][] getWhiteCount() {
-        return whiteCount;
     }
 
     int[][][] getColorCount(Color color) {

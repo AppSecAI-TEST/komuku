@@ -75,22 +75,4 @@ public class MapDriver {
         } catch (Exception ignored) {
         }
     }
-
-    public static void printToConsole(GameMap gameMap) {
-        for (int i = 0; i < Config.size; i++) {
-            for (int j = 0; j < Config.size; j++) {
-                if (gameMap.getMap()[i][j] == Color.NULL) {
-                    System.out.print('□');
-                }
-                if (gameMap.getMap()[i][j] == Color.BLACK) {
-                    System.out.print('×');
-                }
-                if (gameMap.getMap()[i][j] == Color.WHITE) {
-                    System.out.print('●');
-                }
-            }
-            System.out.println();
-        }
-        System.out.println();
-    }
 }

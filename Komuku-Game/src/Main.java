@@ -3,10 +3,7 @@ import core.Game;
 import entity.CountData;
 import entity.Point;
 import enumeration.Color;
-import enumeration.Deep;
 import helper.MapDriver;
-
-import java.io.*;
 
 public class Main {
 
@@ -27,7 +24,6 @@ public class Main {
     private static boolean updateFile = true;
 
     private static Color aiColor = Color.WHITE;
-
 
     public static void main(String[] args) {
         System.out.println("正在初始化数据...");

@@ -1,16 +1,13 @@
 package core;
 
-import enumeration.Deep;
-
 public class Config {
 
     public final static int size = 15;
 
-    public Deep searchDeep = Deep.SIX;
+    public int searchDeep = 6;
 
-    public int comboDeep = 3;
+    public int comboDeep = 9;
 
     public static boolean debug = false;
 
-    public static boolean scoreCacheEnable = false;
 }

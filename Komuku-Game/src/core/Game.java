@@ -1,11 +1,10 @@
 package core;
 
-import entity.AnalyzedData;
 import entity.CountData;
+import entity.Counter;
 import entity.Point;
 import enumeration.Color;
-import enumeration.Deep;
-import helper.MapDriver;
+import helper.ConsolePrinter;
 
 import java.util.List;
 
@@ -17,7 +16,9 @@ public class Game {
 
     private Result result = new Result();
 
-    private ConsolePrinter consolePrinter = new ConsolePrinter(counter);
+    private ConsolePrinter consolePrinter = new ConsolePrinter();
+
+    private ComboProcessor comboProcessor = new ComboProcessor();
 
     private Color aiColor;
 
@@ -32,21 +33,23 @@ public class Game {
 
     public Result search(Color color) {
         result.reset();
-        counter.clear();
         aiColor = color;
         if (WinChecker.win(gameMap) != null) {
             return null;
         }
-        //积分预处理
+        //初始化
+        consolePrinter.init(counter);
         score.init(gameMap, aiColor);
+        comboProcessor.init(gameMap, score, counter, config);
+
         //只有一个扩展点的情形直接返回
-        Analyzer data = new Analyzer(gameMap, aiColor, color, gameMap.getNeighbor(color), score);
-        List<Point> points = LevelProcessor.getExpandPoints(gameMap, data, config.searchDeep.getValue(), config.searchDeep.getValue());
+        Analyzer data = new Analyzer(gameMap, color, gameMap.getNeighbor(color), score);
+        List<Point> points = LevelProcessor.getExpandPoints(data);
         if (points.size() == 1) {
             result.add(points.get(0), 0);
             return result;
         }
-        dfsScore(config.searchDeep.getValue(), color, Integer.MAX_VALUE, 0);
+        dfsScore(config.searchDeep, color, Integer.MAX_VALUE, 0);
         return result;
     }
 
@@ -64,17 +67,16 @@ public class Game {
 
     private int dfsScore(int level, Color color, Integer parentMin, Integer parentMax) {
         //斩杀剪枝
-        if (level == 0) {
+        if (level == config.searchDeep - 2) {
             if (color == aiColor) {
-                if (ComboProcessor.canKill(gameMap, color, config.comboDeep, score)) {
+                if (comboProcessor.canKill(color)) {
                     return Integer.MAX_VALUE;
                 }
             }
         }
-        if (level == 1) {
-            //谨慎处理败北的情形
+        if (level == config.searchDeep - 1) {
             if (color != aiColor) {
-                if (ComboProcessor.canKill(gameMap, color, config.comboDeep, score)) {
+                if (comboProcessor.canKill(color)) {
                     return Integer.MIN_VALUE;
                 }
             }
@@ -85,7 +87,7 @@ public class Game {
         }
         //计算扩展节点
         List<Point> points;
-        Analyzer data = new Analyzer(gameMap, color, aiColor, gameMap.getNeighbor(color), score);
+        Analyzer data = new Analyzer(gameMap, color, gameMap.getNeighbor(color), score);
         //输赢判定
         if (!data.getFiveAttack().isEmpty()) {
             if (color == aiColor) {
@@ -95,14 +97,14 @@ public class Game {
                 return Integer.MIN_VALUE;
             }
         }
-        points = LevelProcessor.getExpandPoints(gameMap, data, level, config.searchDeep.getValue());
+        points = LevelProcessor.getExpandPoints(data);
 
         if (points == null || points.isEmpty()) {
             return getScore();
         }
         //进度计算
-        if (level == config.searchDeep.getValue()) {
-            counter.setAllStep(points.size());
+        if (level == config.searchDeep) {
+            counter.allStep = points.size();
         }
         //遍历扩展节点
         int extreme = color == aiColor ? Integer.MIN_VALUE : Integer.MAX_VALUE;
@@ -114,11 +116,11 @@ public class Game {
                     setColor(point, Color.NULL, color, aiColor);
                     return value;
                 }
-                if (level == config.searchDeep.getValue()) {
+                if (level == config.searchDeep) {
                     if (value >= extreme) {
                         result.add(point, value);
                     }
-                    counter.plus();
+                    counter.finishStep++;
                     consolePrinter.printInfo(point, value);
                 }
                 if (value > extreme) {
@@ -156,7 +158,7 @@ public class Game {
     }
 
     private int getScore() {
-        counter.plusCount();
+        counter.count++;
         return score.getMapScore();
     }
 }

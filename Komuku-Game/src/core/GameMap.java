@@ -1,14 +1,11 @@
 package core;
 
-import entity.AnalyzedData;
 import entity.Point;
 import enumeration.Color;
 import helper.MapDriver;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class GameMap {
 
@@ -56,10 +53,6 @@ public class GameMap {
         map[point.getX()][point.getY()] = color;
     }
 
-    Point getRelatePoint(Point point, int direct, int distance) {
-        return new Point(point.getX() + directX[direct] * distance, point.getY() + directY[direct] * distance);
-    }
-
     boolean checkColors(Color color, Point point, int direct, int start, int end) {
         int x = point.getX() + start * (directX[direct]);
         int y = point.getY() + start * (directY[direct]);
@@ -74,66 +67,6 @@ public class GameMap {
             y += directY[direct];
         }
         return true;
-    }
-
-    int getMaxSequenceWithoutCurrent(Color color, Point point, int direct) {
-        int value = 0;
-        int x = point.getX();
-        int y = point.getY();
-        for (int i = 1; i < 5; i++) {
-            x += directX[direct];
-            y += directY[direct];
-            if (!reachable(x, y)) {
-                return value;
-            }
-            if (getColor(x, y) == color) {
-                value += 1;
-            } else {
-                return value;
-            }
-        }
-        return value;
-    }
-
-    int getMaxSequence(Color color, Point point, int direct) {
-        int value = 0;
-        int x = point.getX();
-        int y = point.getY();
-        for (int i = 0; i < 4; i++) {
-            x += directX[direct];
-            y += directY[direct];
-            if (!reachable(x, y)) {
-                return value;
-            }
-            if (getColor(x, y) == color) {
-                value += 1;
-            } else {
-                return value;
-            }
-        }
-        return value;
-    }
-
-    int getOtherDirect(int direct) {
-        return (direct + 4) % 8;
-    }
-
-    List<Point> getOnePointLine(Point point) {
-        List<Point> result = new ArrayList<>();
-        for (int i = 0; i < 8; i++) {
-            int x = point.getX();
-            int y = point.getY();
-            for (int k = 1; k < 5; k++) {
-                x += directX[i];
-                y += directY[i];
-                if (reachable(x, y)) {
-                    if (getColor(x, y) == Color.NULL) {
-                        result.add(new Point(x, y));
-                    }
-                }
-            }
-        }
-        return result;
     }
 
     List<Point> getNeighbor(Color color) {
