@@ -18,9 +18,17 @@ public class Player {
             config.comboDeep = 0;
             config.searchDeep = 4;
         }
-        if (level == Level.HIGH) {
-            config.comboDeep = 9;
+        if (level == Level.NORMAL) {
+            config.comboDeep = 0;
             config.searchDeep = 6;
+        }
+        if (level == Level.HIGH) {
+            config.comboDeep = 7;
+            config.searchDeep = 6;
+        }
+        if (level == Level.VERY_HIGH) {
+            config.comboDeep = 11;
+            config.searchDeep = 8;
         }
         game.init(map, config);
     }

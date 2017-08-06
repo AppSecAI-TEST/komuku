@@ -1,5 +1,5 @@
 package enumeration;
 
 public enum Level {
-    EASY, HIGH
+    EASY, NORMAL, HIGH, VERY_HIGH
 }
