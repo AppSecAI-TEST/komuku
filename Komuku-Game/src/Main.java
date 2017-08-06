@@ -22,13 +22,16 @@ public class Main {
 
     private static boolean autoRun = false;
 
-    private static boolean updateFile = true;
+    private static boolean updateFile = false;
 
-    private static Color aiColor = Color.WHITE;
+    private static Color aiColor = Color.BLACK;
 
     public static void main(String[] args) {
         System.out.println("正在初始化数据...");
-        game.init(map, new Config());
+        Config config = new Config();
+        config.searchDeep = 8;
+        config.comboDeep = 11;
+        game.init(map, config);
         System.out.println("开始计算...");
         if (WinChecker.win(map) != null) {
             System.out.println(WinChecker.win(map) + " win");
