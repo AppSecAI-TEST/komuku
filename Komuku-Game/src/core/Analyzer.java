@@ -196,7 +196,7 @@ public class Analyzer {
         GameMap gameMap = new GameMap(MapDriver.readMap());
         Score score = new Score();
         score.init(gameMap, Color.WHITE);
-        Analyzer analyzer = new Analyzer(gameMap, Color.WHITE, gameMap.getNeighbor(Color.WHITE), score);
+        Analyzer analyzer = new Analyzer(gameMap, Color.WHITE, gameMap.getNeighbor(), score);
 
         System.out.println("FIVE A");
         System.out.println(analyzer.getFiveAttack());

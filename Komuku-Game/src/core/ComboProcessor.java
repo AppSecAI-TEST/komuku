@@ -36,7 +36,7 @@ public class ComboProcessor {
             return false;
         }
         List<Point> rangePoints;
-        rangePoints = gameMap.getNeighbor(color);
+        rangePoints = gameMap.getNeighbor();
         Analyzer data = new Analyzer(gameMap, color, rangePoints, score);
         if (color == targetColor) {
             if (data.getFiveAttack().size() > 0) {
