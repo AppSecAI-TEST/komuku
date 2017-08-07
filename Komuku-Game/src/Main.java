@@ -29,8 +29,8 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("正在初始化数据...");
         Config config = new Config();
-        config.searchDeep = 8;
-        config.comboDeep = 11;
+        config.searchDeep = 6;
+        config.comboDeep = 7;
         game.init(map, config);
         System.out.println("开始计算...");
         if (WinChecker.win(map) != null) {
