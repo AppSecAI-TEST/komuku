@@ -79,8 +79,7 @@ public class Game {
             return getScore();
         }
         //计算扩展节点
-        List<Point> points = gameMap.getNeighbor();
-        Analyzer data = new Analyzer(gameMap, color, points, score);
+        Analyzer data = new Analyzer(gameMap, color, gameMap.getNeighbor(), score);
         //输赢判定
         if (!data.getFiveAttack().isEmpty()) {
             if (color == aiColor) {
@@ -90,6 +89,7 @@ public class Game {
                 return Integer.MIN_VALUE;
             }
         }
+        List<Point> points = LevelProcessor.getExpandPoints(data);
         //进度计算
         if (level == config.searchDeep) {
             counter.allStep = points.size();
