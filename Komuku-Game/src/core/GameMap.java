@@ -4,8 +4,7 @@ import entity.Point;
 import enumeration.Color;
 import helper.MapDriver;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class GameMap {
 
@@ -14,8 +13,18 @@ public class GameMap {
 
     private Color[][] map;
 
+    private Set<Point> neighbor = new HashSet<>();
+    private Map<Point, List<Point>> historyAdd = new HashMap<>();
+
     public GameMap(Color[][] map) {
         this.map = map;
+        for (int i = 0; i < Config.size; i++)
+            for (int j = 0; j < Config.size; j++) {
+                Color color = getColor(i, j);
+                if (color != Color.NULL) {
+                    updateNeighbor(new Point(i, j), color);
+                }
+            }
     }
 
     static boolean reachable(Point point) {
@@ -51,6 +60,59 @@ public class GameMap {
 
     void setColor(Point point, Color color) {
         map[point.getX()][point.getY()] = color;
+        updateNeighbor(point, color);
+    }
+
+    void updateNeighbor(Point point, Color pointColor) {
+        if (pointColor != Color.NULL) {
+            List<Point> points = new ArrayList<>();
+            neighbor.remove(point);
+            for (int i = 0; i < 8; i++) {
+                int x = point.getX() + directX[i];
+                int y = point.getY() + directY[i];
+                if (reachable(x, y)) {
+                    Color color = getColor(x, y);
+                    if (getColor(x, y) == Color.NULL) {
+                        Point newPoint = new Point(x, y);
+                        if (!neighbor.contains(newPoint)) {
+                            neighbor.add(newPoint);
+                            points.add(newPoint);
+                        }
+                    } else {
+                        if (color == pointColor) {
+                            int x1 = point.getX() + directX[i] * 3;
+                            int y1 = point.getY() + directY[i] * 3;
+                            int x2 = point.getX() - directX[i] * 2;
+                            int y2 = point.getY() - directY[i] * 2;
+                            Point point1 = new Point(x1, y1);
+                            Point point2 = new Point(x2, y2);
+                            if (reachable(x1, y1)) {
+                                if (getColor(x1, y1) == Color.NULL) {
+                                    if (!neighbor.contains(point1)) {
+                                        neighbor.add(point1);
+                                        points.add(point1);
+                                    }
+                                }
+                            }
+                            if (reachable(x2, y2)) {
+                                if (getColor(x2, y2) == Color.NULL) {
+                                    if (!neighbor.contains(point2)) {
+                                        neighbor.add(point2);
+                                        points.add(point2);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            historyAdd.put(point, points);
+        } else {
+            List<Point> points = historyAdd.get(point);
+            neighbor.removeAll(points);
+            neighbor.add(point);
+            historyAdd.remove(point);
+        }
     }
 
     public boolean checkColors(Color color, Point point, int direct, int start, int end) {
@@ -69,79 +131,17 @@ public class GameMap {
         return true;
     }
 
-    List<Point> getNeighbor(Color color) {
-        int range = 2;
-        List<Point> result = new ArrayList<>();
-        int[][] signal = new int[Config.size][Config.size];
-        int[][] signalCurrentColorTwo = new int[Config.size][Config.size];
-        int[][] signalOtherColorTwo = new int[Config.size][Config.size];
-        for (int i = 0; i < Config.size; i++)
-            for (int j = 0; j < Config.size; j++) {
-                Color pointColor = getColor(i, j);
-                if (pointColor != Color.NULL) {
-                    int left = i - range >= 0 ? i - range : 0;
-                    int right = i + range < Config.size - 1 ? i + range : Config.size - 1;
-                    int top = j - range >= 0 ? j - range : 0;
-                    int button = j + range < Config.size - 1 ? j + range : Config.size - 1;
-                    for (int x = left; x <= right; x++)
-                        for (int y = top; y <= button; y++) {
-                            if (getColor(x, y) == Color.NULL) {
-                                if (Math.max(Math.abs(x - i), Math.abs(y - j)) == 1) {
-                                    signal[x][y]++;
-                                }
-                                if (Math.max(Math.abs(x - i), Math.abs(y - j)) == 2) {
-                                    if (Math.abs(x - i) != 1 && Math.abs(y - j) != 1) {
-                                        //只计算2连隔空下
-                                        int tx = i, ty = j;
-                                        if (x - i > 0) {
-                                            tx = i - 1;
-                                        }
-                                        if (x - i < 0) {
-                                            tx = i + 1;
-                                        }
-                                        if (y - j > 0) {
-                                            ty = j - 1;
-                                        }
-                                        if (y - j < 0) {
-                                            ty = j + 1;
-                                        }
-                                        if (reachable(tx, ty)) {
-                                            if (getColor(tx, ty) == pointColor) {
-                                                if (pointColor == color) {
-                                                    signalCurrentColorTwo[x][y]++;
-                                                }
-                                                if (pointColor == color.getOtherColor()) {
-                                                    signalOtherColorTwo[x][y]++;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                }
-            }
-        for (int i = 0; i < Config.size; i++)
-            for (int j = 0; j < Config.size; j++) {
-                if (signal[i][j] > 0) {
-                    result.add(new Point(i, j));
-                    continue;
-                }
-                if (signalCurrentColorTwo[i][j] > 0) {
-                    result.add(new Point(i, j));
-                    continue;
-                }
-                if (signalOtherColorTwo[i][j] > 0) {
-                    result.add(new Point(i, j));
-                }
-            }
-        return result;
+    List<Point> getNeighbor() {
+        return new ArrayList<>(neighbor);
     }
+
 
     public static void main(String[] args) {
         Color[][] map = MapDriver.readMap();
         GameMap gameMap = new GameMap(map);
-        System.out.println(gameMap.getNeighbor(Color.BLACK));
+        List<Point> points = gameMap.getNeighbor();
+        gameMap.setColor(points.get(0), Color.WHITE);
+        gameMap.setColor(points.get(0), Color.NULL);
+        gameMap.getNeighbor();
     }
 }
