@@ -36,7 +36,7 @@ public class GameMap {
                 Color color = getColor(i, j);
                 if (color != Color.NULL) {
                     updateNeighbor(new Point(i, j), color);
-                    updateHashCode(i, j, color, Color.NULL);
+                    updateHashCode(i, j, color);
                 }
             }
     }
@@ -73,6 +73,11 @@ public class GameMap {
     }
 
     void setColor(Point point, Color color) {
+        if (color != Color.NULL) {
+            updateHashCode(point.getX(), point.getY(), color);
+        } else {
+            updateHashCode(point.getX(), point.getY(), map[point.getX()][point.getY()]);
+        }
         map[point.getX()][point.getY()] = color;
         updateNeighbor(point, color);
     }
@@ -153,15 +158,7 @@ public class GameMap {
         return hashCode;
     }
 
-    private void updateHashCode(int x, int y, Color color, Color forwardColor) {
-        if (forwardColor != Color.NULL) {
-            if (forwardColor == Color.BLACK) {
-                hashCode ^= weightBlack[x][y];
-            }
-            if (forwardColor == Color.WHITE) {
-                hashCode ^= weightWhite[x][y];
-            }
-        }
+    private void updateHashCode(int x, int y, Color color) {
         if (color != Color.NULL) {
             if (color == Color.BLACK) {
                 hashCode ^= weightBlack[x][y];
@@ -176,8 +173,13 @@ public class GameMap {
         Color[][] map = MapDriver.readMap();
         GameMap gameMap = new GameMap(map);
         List<Point> points = gameMap.getNeighbor();
+        long hashCode = gameMap.getHashCode();
         gameMap.setColor(points.get(0), Color.WHITE);
+        gameMap.setColor(points.get(1), Color.BLACK);
         gameMap.setColor(points.get(0), Color.NULL);
+        gameMap.setColor(points.get(1), Color.NULL);
+        long hashCode2 = gameMap.getHashCode();
+        assert hashCode == hashCode2;
         gameMap.getNeighbor();
     }
 

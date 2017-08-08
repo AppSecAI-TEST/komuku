@@ -8,6 +8,8 @@ public class Config {
 
     public int comboDeep = 9;
 
+    public int cacheSize = 50000;
+
     public static boolean debug = false;
 
 }

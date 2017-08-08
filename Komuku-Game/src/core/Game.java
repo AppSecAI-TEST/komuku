@@ -25,6 +25,8 @@ public class Game {
 
     private Config config;
 
+    private Cache cache;
+
     private Score score = new Score();
 
     public void init(Color[][] map, Config config) {
@@ -39,9 +41,10 @@ public class Game {
             return null;
         }
         //初始化
+        cache = new Cache(config, gameMap);
         consolePrinter.init(counter);
         score.init(gameMap, aiColor);
-        comboProcessor.init(gameMap, score, counter, config);
+        comboProcessor.init(gameMap, score, counter, config, cache);
 
         //只有一个扩展点的情形直接返回
         Analyzer data = new Analyzer(gameMap, color, gameMap.getNeighbor(), score);
