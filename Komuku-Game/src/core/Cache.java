@@ -1,5 +1,7 @@
 package core;
 
+import entity.Counter;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -9,14 +11,15 @@ class Cache {
 
     GameMap gameMap;
 
+    Counter counter;
+
     private QueueMap<Long, Boolean> cacheCombo = new QueueMap<>();
 
-    private QueueMap<Long, Integer> cacheScore = new QueueMap<>();
 
-
-    Cache(Config config, GameMap gameMap) {
+    Cache(Config config, GameMap gameMap, Counter counter) {
         this.config = config;
         this.gameMap = gameMap;
+        this.counter = counter;
     }
 
     void recordComboResult(boolean value) {
@@ -25,25 +28,11 @@ class Cache {
         }
     }
 
-    void recordScoreResult(int value) {
-        if (config.cacheSize > 0) {
-            cacheScore.put(gameMap.getHashCode(), value);
-        }
-    }
-
     Boolean getComboResult() {
         if (config.cacheSize > 0) {
             if (cacheCombo.containsKey(gameMap.getHashCode())) {
+                counter.comboCacheHit++;
                 return cacheCombo.get(gameMap.getHashCode());
-            }
-        }
-        return null;
-    }
-
-    Integer getScoreResult() {
-        if (config.cacheSize > 0) {
-            if (cacheScore.containsKey(gameMap.getHashCode())) {
-                return cacheScore.get(gameMap.getHashCode());
             }
         }
         return null;

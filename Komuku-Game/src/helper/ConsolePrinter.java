@@ -20,7 +20,7 @@ public class ConsolePrinter {
 
     public void printInfo(Point point, int value) {
         if (Config.debug) {
-            System.out.println(String.format("%s %s: %s count: %s combo count: %s time: %s ms", point.getX(), point.getY(), value, counter.count, counter.countCombo,
+            System.out.println(String.format("%s %s: %s count: %s combo count: %s combo hit %s time: %s ms", point.getX(), point.getY(), value, counter.count, counter.countCombo, counter.comboCacheHit,
                     new Date().getTime() - debugTime));
         }
     }

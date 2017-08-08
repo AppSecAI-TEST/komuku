@@ -6,6 +6,8 @@ public class Counter {
 
     public int countCombo;
 
+    public int comboCacheHit;
+
     public int finishStep;
 
     public int allStep;

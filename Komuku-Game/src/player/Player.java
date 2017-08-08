@@ -11,9 +11,10 @@ public class Player {
 
     Game game;
 
+    Config config = new Config();
+
     public Player(Color[][] map, Level level) {
         game = new Game();
-        Config config = new Config();
         if (level == Level.EASY) {
             config.comboDeep = 0;
             config.searchDeep = 4;
@@ -27,10 +28,14 @@ public class Player {
             config.searchDeep = 6;
         }
         if (level == Level.VERY_HIGH) {
-            config.comboDeep = 11;
-            config.searchDeep = 8;
+            config.comboDeep = 15;
+            config.searchDeep = 6;
         }
         game.init(map, config);
+    }
+
+    public void setCacheSize(int value) {
+        config.cacheSize = value;
     }
 
     public CountData getCountData() {

@@ -6,7 +6,7 @@ public class Config {
 
     public int searchDeep = 6;
 
-    public int comboDeep = 9;
+    public int comboDeep = 7;
 
     public int cacheSize = 50000;
 

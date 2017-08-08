@@ -41,9 +41,9 @@ public class Game {
             return null;
         }
         //初始化
-        cache = new Cache(config, gameMap);
         consolePrinter.init(counter);
         score.init(gameMap, aiColor);
+        cache = new Cache(config, gameMap, counter);
         comboProcessor.init(gameMap, score, counter, config, cache);
 
         //只有一个扩展点的情形直接返回

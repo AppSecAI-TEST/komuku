@@ -136,7 +136,7 @@ public class ComboProcessor {
         Config config = new Config();
         config.comboDeep = 7;
         ComboProcessor comboProcessor = new ComboProcessor();
-        comboProcessor.init(gameMap, score, new Counter(), config, new Cache(config, gameMap));
+        comboProcessor.init(gameMap, score, new Counter(), config, new Cache(config, gameMap, new Counter()));
         System.out.println(comboProcessor.canKill(Color.BLACK));
         System.out.println(System.currentTimeMillis() - time + "ms");
     }
