@@ -16,6 +16,19 @@ public class GameMap {
     private Set<Point> neighbor = new HashSet<>();
     private Map<Point, List<Point>> historyAdd = new HashMap<>();
 
+    private long hashCode = 0;
+    private static long[][] weightBlack = new long[Config.size][Config.size];
+    private static long[][] weightWhite = new long[Config.size][Config.size];
+
+    static {
+        Random random = new Random();
+        for (int i = 0; i < Config.size; i++)
+            for (int j = 0; j < Config.size; j++) {
+                weightBlack[i][j] = random.nextLong();
+                weightWhite[i][j] = random.nextLong();
+            }
+    }
+
     public GameMap(Color[][] map) {
         this.map = map;
         for (int i = 0; i < Config.size; i++)
@@ -23,6 +36,7 @@ public class GameMap {
                 Color color = getColor(i, j);
                 if (color != Color.NULL) {
                     updateNeighbor(new Point(i, j), color);
+                    updateHashCode(i, j, color, Color.NULL);
                 }
             }
     }
@@ -135,6 +149,28 @@ public class GameMap {
         return new ArrayList<>(neighbor);
     }
 
+    public long getHashCode() {
+        return hashCode;
+    }
+
+    private void updateHashCode(int x, int y, Color color, Color forwardColor) {
+        if (forwardColor != Color.NULL) {
+            if (forwardColor == Color.BLACK) {
+                hashCode ^= weightBlack[x][y];
+            }
+            if (forwardColor == Color.WHITE) {
+                hashCode ^= weightWhite[x][y];
+            }
+        }
+        if (color != Color.NULL) {
+            if (color == Color.BLACK) {
+                hashCode ^= weightBlack[x][y];
+            }
+            if (color == Color.WHITE) {
+                hashCode ^= weightWhite[x][y];
+            }
+        }
+    }
 
     public static void main(String[] args) {
         Color[][] map = MapDriver.readMap();
@@ -144,4 +180,5 @@ public class GameMap {
         gameMap.setColor(points.get(0), Color.NULL);
         gameMap.getNeighbor();
     }
+
 }

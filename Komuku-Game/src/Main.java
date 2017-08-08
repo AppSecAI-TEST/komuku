@@ -24,13 +24,13 @@ public class Main {
 
     private static boolean updateFile = false;
 
-    private static Color aiColor = Color.BLACK;
+    private static Color aiColor = Color.WHITE;
 
     public static void main(String[] args) {
         System.out.println("正在初始化数据...");
         Config config = new Config();
         config.searchDeep = 6;
-        config.comboDeep = 7;
+        config.comboDeep = 17;
         game.init(map, config);
         System.out.println("开始计算...");
         if (WinChecker.win(map) != null) {

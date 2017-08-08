@@ -7,6 +7,7 @@ import helper.ConsolePrinter;
 import helper.MapDriver;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class ComboProcessor {
@@ -18,6 +19,8 @@ public class ComboProcessor {
     private Counter counter;
 
     private Config config;
+
+    private LinkedHashMap<Long, Boolean> cache = new LinkedHashMap<>();
 
     public void init(GameMap gameMap, Score score, Counter counter, Config config) {
         this.gameMap = gameMap;
