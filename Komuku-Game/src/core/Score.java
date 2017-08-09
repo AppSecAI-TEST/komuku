@@ -2,11 +2,12 @@ package core;
 
 import entity.Point;
 import enumeration.Color;
+import helper.ConsolePrinter;
 import helper.MapDriver;
 
 class Score {
 
-    private static int ONE = 3;
+    private static int ONE = 2;
     private static int TWO = 10;
     private static int THREE = 20;
     private static int FOUR = 50;
@@ -42,7 +43,15 @@ class Score {
         for (int i = 0; i < 4; i++) {
             int x = point.getX();
             int y = point.getY();
+            int headX = x - directX[i] * 4;
+            int headY = y - directY[i] * 4;
             for (int k = 0; k < 5; k++) {
+                if (!GameMap.reachable(headX, headY)) {
+                    continue;
+                }
+                if (!GameMap.reachable(x, y)) {
+                    continue;
+                }
                 if (forwardColor == Color.NULL) {
                     value -= getValueByCount(blackCount[x][y][i], whiteCount[x][y][i], aiColor);
                     if (color == Color.BLACK) {
@@ -67,9 +76,6 @@ class Score {
                 }
                 x += directX[i];
                 y += directY[i];
-                if (!GameMap.reachable(x, y)) {
-                    break;
-                }
             }
         }
     }
@@ -111,5 +117,23 @@ class Score {
             return whiteCount;
         }
         return null;
+    }
+
+    public static void main(String[] args) {
+        Color[][] map = MapDriver.readMap();
+        GameMap gameMap = new GameMap(map);
+        ConsolePrinter.printMap(gameMap);
+        Score score = new Score();
+        score.init(gameMap, Color.WHITE);
+        System.out.println(score.getMapScore());
+        for (int k = 0; k < 4; k++) {
+            for (int i = 0; i < Config.size; i++) {
+                for (int j = 0; j < Config.size; j++) {
+                    System.out.print(score.whiteCount[i][j][k]);
+                }
+                System.out.println();
+            }
+            System.out.println();
+        }
     }
 }
