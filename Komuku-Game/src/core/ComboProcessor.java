@@ -23,6 +23,8 @@ public class ComboProcessor {
 
     private Cache cache;
 
+    private Point result;
+
     public void init(GameMap gameMap, Score score, Counter counter, Config config, Cache cache) {
         this.gameMap = gameMap;
         this.score = score;
@@ -31,8 +33,10 @@ public class ComboProcessor {
         this.cache = cache;
     }
 
-    boolean canKill(Color targetColor) {
-        return dfsKill(gameMap, targetColor, targetColor, config.comboDeep, score);
+    Point canKill(Color targetColor) {
+        result = null;
+        dfsKill(gameMap, targetColor, targetColor, config.comboDeep, score);
+        return result;
     }
 
     private boolean dfsKill(GameMap gameMap, Color color, Color targetColor, int level, Score score) {
@@ -58,6 +62,9 @@ public class ComboProcessor {
             for (Point point : points) {
                 setColor(point, color, Color.NULL, targetColor, score, gameMap);
                 boolean value = dfsKill(gameMap, color.getOtherColor(), targetColor, level - 1, score);
+                if (level == config.comboDeep && value) {
+                    result = point;
+                }
                 if (value) {
                     setColor(point, Color.NULL, color, targetColor, score, gameMap);
                     return returnValue(true);
@@ -107,7 +114,7 @@ public class ComboProcessor {
         if (!data.getFourDefence().isEmpty()) {
             return new ArrayList<>(data.getFourDefence());
         }
-        //如果有对方活3，则防活3或者冲四
+        //如果有对方活3，则防活3
         if (!data.getThreeDefence().isEmpty()) {
             return new ArrayList<>(data.getThreeDefence());
         }
@@ -129,13 +136,13 @@ public class ComboProcessor {
         GameMap gameMap = new GameMap(colors);
         ConsolePrinter.printMap(gameMap);
         Score score = new Score();
-        score.init(gameMap, Color.BLACK);
+        score.init(gameMap, Color.WHITE);
         long time = System.currentTimeMillis();
         Config config = new Config();
         config.comboDeep = 7;
         ComboProcessor comboProcessor = new ComboProcessor();
         comboProcessor.init(gameMap, score, new Counter(), config, new Cache(config, gameMap, new Counter()));
-        System.out.println(comboProcessor.canKill(Color.BLACK));
+        System.out.println(comboProcessor.canKill(Color.WHITE));
         System.out.println(System.currentTimeMillis() - time + "ms");
     }
 }

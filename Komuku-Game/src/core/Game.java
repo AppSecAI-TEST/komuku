@@ -67,13 +67,20 @@ public class Game {
 
     private int dfsScore(int level, Color color, Integer parentMin, Integer parentMax) {
         //斩杀剪枝
+        if (level == config.searchDeep) {
+            Point winTry = comboProcessor.canKill(color);
+            if (winTry != null) {
+                result.add(winTry, Integer.MAX_VALUE);
+                return Integer.MAX_VALUE;
+            }
+        }
         if (level == config.searchDeep - 2) {
-            if (comboProcessor.canKill(color)) {
+            if (comboProcessor.canKill(color) != null) {
                 return Integer.MAX_VALUE;
             }
         }
         if (level == config.searchDeep - 1) {
-            if (comboProcessor.canKill(color)) {
+            if (comboProcessor.canKill(color) != null) {
                 return Integer.MIN_VALUE;
             }
         }
