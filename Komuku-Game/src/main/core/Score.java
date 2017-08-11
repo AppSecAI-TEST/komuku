@@ -41,11 +41,13 @@ class Score {
 
     void setColor(Point point, Color color, Color forwardColor, Color aiColor) {
         for (int i = 0; i < 4; i++) {
-            int x = point.getX();
-            int y = point.getY();
-            int headX = x - directX[i] * 4;
-            int headY = y - directY[i] * 4;
+            int x = point.getX() - directX[i];
+            int y = point.getY() - directY[i];
             for (int k = 0; k < 5; k++) {
+                x += directX[i];
+                y += directY[i];
+                int headX = x - directX[i] * 4;
+                int headY = y - directY[i] * 4;
                 if (!GameMap.reachable(headX, headY)) {
                     continue;
                 }
@@ -74,24 +76,22 @@ class Score {
                     }
                     value += getValueByCount(blackCount[x][y][i], whiteCount[x][y][i], aiColor);
                 }
-                x += directX[i];
-                y += directY[i];
             }
         }
     }
 
     private int getValueByCount(int blackCount, int whiteCount, Color color) {
         int value = 0;
-        if (blackCount == 0) {
-            if (whiteCount == 1)
-                value -= ONE;
-            if (whiteCount == 2)
-                value -= TWO;
-            if (whiteCount == 3)
-                value -= THREE;
-            if (whiteCount == 4)
-                value -= FOUR;
-        }
+//        if (blackCount == 0) {
+//            if (whiteCount == 1)
+//                value -= ONE;
+//            if (whiteCount == 2)
+//                value -= TWO;
+//            if (whiteCount == 3)
+//                value -= THREE;
+//            if (whiteCount == 4)
+//                value -= FOUR;
+//        }
 
         if (whiteCount == 0) {
             if (blackCount == 1)
@@ -120,11 +120,11 @@ class Score {
     }
 
     public static void main(String[] args) {
-        Color[][] map = MapDriver.readMap();
+        Color[][] map = MapDriver.readMap("Komuku-Game/src/test/inputs/score/fourTop.txt");
         GameMap gameMap = new GameMap(map);
         ConsolePrinter.printMap(gameMap);
         Score score = new Score();
-        score.init(gameMap, Color.WHITE);
+        score.init(gameMap, Color.BLACK);
         System.out.println(score.getMapScore());
         for (int k = 0; k < 4; k++) {
             for (int i = 0; i < Config.size; i++) {
@@ -135,5 +135,22 @@ class Score {
             }
             System.out.println();
         }
+
+        map = MapDriver.readMap("Komuku-Game/src/test/inputs/score/fourButton.txt");
+        gameMap = new GameMap(map);
+        ConsolePrinter.printMap(gameMap);
+        score = new Score();
+        score.init(gameMap, Color.BLACK);
+        System.out.println(score.getMapScore());
+        for (int k = 0; k < 4; k++) {
+            for (int i = 0; i < Config.size; i++) {
+                for (int j = 0; j < Config.size; j++) {
+                    System.out.print(score.whiteCount[i][j][k]);
+                }
+                System.out.println();
+            }
+            System.out.println();
+        }
+
     }
 }

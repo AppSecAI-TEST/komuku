@@ -10,7 +10,11 @@ import java.io.*;
 public class MapDriver {
 
     public static Color[][] readMap() {
-        File file = new File("Komuku-Game/src/input.txt");
+        return readMap("Komuku-Game/src/test/input.txt");
+    }
+
+    public static Color[][] readMap(String path) {
+        File file = new File(path);
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(file));
