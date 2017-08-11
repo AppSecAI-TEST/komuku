@@ -56,7 +56,6 @@ public class Game {
         //初始胜利计算
         int comboLevel = config.comboDeep;
         for (int i = 1; i <= comboLevel; i += 2) {
-            System.out.println(i);
             config.comboDeep = i;
             cache.clear();
             Point winTry = comboProcessor.canKill(color);
@@ -65,7 +64,6 @@ public class Game {
                 return result;
             }
         }
-        System.out.println("skip");
         config.comboDeep = comboLevel;
         dfsScore(config.searchDeep, color, Integer.MAX_VALUE, 0);
         return result;
@@ -81,11 +79,11 @@ public class Game {
 
     private int dfsScore(int level, Color color, Integer parentMin, Integer parentMax) {
         //斩杀剪枝
-        if (level == config.searchDeep - 2) {
-            if (comboProcessor.canKill(color) != null) {
-                return Integer.MAX_VALUE;
-            }
-        }
+//        if (level == config.searchDeep - 2) {
+//            if (comboProcessor.canKill(color) != null) {
+//                return Integer.MAX_VALUE;
+//            }
+//        }
         if (level == config.searchDeep - 1) {
             if (comboProcessor.canKill(color) != null) {
                 return Integer.MIN_VALUE;

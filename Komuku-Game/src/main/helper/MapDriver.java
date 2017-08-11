@@ -57,7 +57,7 @@ public class MapDriver {
 
     public static void printMap(Color[][] map) {
         try {
-            PrintWriter writer = new PrintWriter(new File("Komuku-Game/src/input.txt"));
+            PrintWriter writer = new PrintWriter(new File("Komuku-Game/src/test/input.txt"));
             StringBuilder content = new StringBuilder(Config.size + "\n");
             for (int i = 0; i < Config.size; i++) {
                 for (int j = 0; j < Config.size; j++) {

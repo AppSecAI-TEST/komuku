@@ -114,9 +114,11 @@ public class ComboProcessor {
         if (!data.getFourDefence().isEmpty()) {
             return new ArrayList<>(data.getFourDefence());
         }
-        //如果有对方活3，则防活3
+        //如果有对方活3，则防活3或者冲四
         if (!data.getThreeDefence().isEmpty()) {
-            return new ArrayList<>(data.getThreeDefence());
+            return new ArrayList<Point>(data.getThreeDefence()) {{
+                addAll(data.getFourAttack());
+            }};
         }
         return new ArrayList<>();
     }
