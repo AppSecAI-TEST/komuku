@@ -20,8 +20,8 @@ public class Player {
             config.searchDeep = 4;
         }
         if (level == Level.NORMAL) {
-            config.comboDeep = 4;
-            config.searchDeep = 7;
+            config.comboDeep = 7;
+            config.searchDeep = 4;
         }
         if (level == Level.HIGH) {
             config.comboDeep = 7;
