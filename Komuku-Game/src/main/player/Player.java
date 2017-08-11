@@ -43,7 +43,13 @@ public class Player {
     }
 
     public Result play(Color color) {
-        return game.search(color);
+        Result result = game.search(color);
+        if (result.getMaxValue() == Integer.MIN_VALUE) {
+            game = new Game();
+            config.comboDeep = 0;
+            result = game.search(color);
+        }
+        return result;
     }
 
 }

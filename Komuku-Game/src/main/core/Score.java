@@ -82,16 +82,16 @@ class Score {
 
     private int getValueByCount(int blackCount, int whiteCount, Color color) {
         int value = 0;
-//        if (blackCount == 0) {
-//            if (whiteCount == 1)
-//                value -= ONE;
-//            if (whiteCount == 2)
-//                value -= TWO;
-//            if (whiteCount == 3)
-//                value -= THREE;
-//            if (whiteCount == 4)
-//                value -= FOUR;
-//        }
+        if (blackCount == 0) {
+            if (whiteCount == 1)
+                value -= ONE;
+            if (whiteCount == 2)
+                value -= TWO;
+            if (whiteCount == 3)
+                value -= THREE;
+            if (whiteCount == 4)
+                value -= FOUR;
+        }
 
         if (whiteCount == 0) {
             if (blackCount == 1)

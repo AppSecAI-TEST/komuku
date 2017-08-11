@@ -38,6 +38,10 @@ class Cache {
         return null;
     }
 
+    public void clear(){
+        cacheCombo.clear();
+    }
+
     class QueueMap<K, V> extends LinkedHashMap<K, V> {
         protected boolean removeEldestEntry(Map.Entry eldest) {
             return size() > config.cacheSize;
